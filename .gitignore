@@ -1,0 +1,13 @@
+# Ignore node_modules inside both folders
+frontend/node_modules/
+smart-contract/node_modules/
+
+# Ignore build output
+frontend/.next/
+frontend/dist/
+smart-contract/artifacts/
+smart-contract/cache/
+
+# Ignore environment files
+frontend/.env
+smart-contract/.env
