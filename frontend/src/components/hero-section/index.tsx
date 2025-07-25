@@ -1,0 +1,148 @@
+import React from "react";
+import {
+  OutlinedButton,
+  PrimaryButton,
+  SecondaryButton,
+  SectionWrapper,
+} from "@/styles/common-styles";
+import { Avatar, Box } from "@mui/material";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+
+const sectionStyles = {
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingTop: "80px",
+  minHeight: "500px",
+  background: "linear-gradient(to bottom, #e7a300, #ffffff)",
+
+  ".left_content": {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+    width: "400px",
+
+    ".buttons_wrapper": {
+      display: "flex",
+      flexDirection: "row",
+      gap: "20px",
+    },
+  },
+
+  ".phone_section": {
+    display: "flex",
+    flexDirection: "column",
+    height: "480px",
+    width: "280px",
+    border: "2px solid #000000",
+    borderRadius: "20px",
+    padding: "20px",
+
+    ".profile": {
+      display: "flex",
+      alignItems: "center",
+      gap: "5px",
+
+      ".avatar": {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "50%",
+        width: "40px",
+        height: "40px",
+        border: "1px solid #000000",
+      },
+
+      ".name": {
+        fontSize: "16px",
+        fontWeight: 500,
+      },
+    },
+
+    ".image_placeholder": {
+      marginTop: "10px",
+      borderRadius: "2px",
+      background: "red",
+      height: "250px",
+      width: "100%",
+
+      img: {
+        width: "100%",
+        height: "250px",
+        objectFit: "cover",
+        borderRadius: "2px",
+      },
+    },
+
+    ".price": {
+      fontSize: "16px",
+      fontWeight: 600,
+      marginTop: "5px",
+    },
+
+    ".reactions": {
+      display: "flex",
+      gap: "20px",
+      marginTop: "10px",
+
+      ".likes, .comments": {
+        display: "flex",
+        alignItems: "center",
+        gap: "5px",
+        fontSize: "15px",
+      },
+    },
+  },
+};
+
+const HeroSection = () => {
+  return (
+    <SectionWrapper sx={sectionStyles}>
+      <Box className="left_content">
+        <h1>Own the Moment. Mint Instantly. Earn Forever.</h1>
+        <p>
+          InstaMint lets you transform everyday images into valuable digital
+          assets — minted instantly on <i>Etherlink</i>. Start earning whenever
+          fans collect your creations.
+        </p>
+        <Box className="buttons_wrapper">
+          <PrimaryButton>Start Minting</PrimaryButton>
+          <OutlinedButton>Explore Collections</OutlinedButton>
+        </Box>
+      </Box>
+
+      <Box className="phone_section">
+        <Box className="profile">
+          <Box className="avatar">
+            <Avatar
+              alt="Remy Traveler"
+              src="/assets/hiker.webp"
+              sx={{ width: 35, height: 35 }}
+            />
+          </Box>
+          <Box className="name">Remy Traveler</Box>
+        </Box>
+
+        <Box className="image_placeholder">
+          <img src="/assets/Beaches_for_Everyone_dadc6885a5.avif" alt="NFT" />
+        </Box>
+
+        <Box className="reactions">
+          <Box className="likes">
+            <FavoriteBorderIcon />
+            12k
+          </Box>
+          <Box className="comments">
+            <ChatBubbleOutlineIcon />
+            5000
+          </Box>
+        </Box>
+
+        <p className="price">12 ETH</p>
+        <SecondaryButton sx={{ mt: "10px" }}>Buy</SecondaryButton>
+      </Box>
+    </SectionWrapper>
+  );
+};
+
+export default HeroSection;
