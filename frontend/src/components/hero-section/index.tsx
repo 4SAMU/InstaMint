@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   OutlinedButton,
   PrimaryButton,
@@ -8,6 +8,9 @@ import {
 import { Avatar, Box } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import EastIcon from "@mui/icons-material/East";
+import MintModal from "../modals/MintModal";
+import { useRouter } from "next/router";
 
 const sectionStyles = {
   alignItems: "center",
@@ -96,52 +99,63 @@ const sectionStyles = {
 };
 
 const HeroSection = () => {
+  const router = useRouter();
+  const [isMintOpen, setMintOpen] = useState(false);
+
   return (
-    <SectionWrapper sx={sectionStyles}>
-      <Box className="left_content">
-        <h1>Own the Moment. Mint Instantly. Earn Forever.</h1>
-        <p>
-          InstaMint lets you transform everyday images into valuable digital
-          assets — minted instantly on <i>Etherlink</i>. Start earning whenever
-          fans collect your creations.
-        </p>
-        <Box className="buttons_wrapper">
-          <PrimaryButton>Start Minting</PrimaryButton>
-          <OutlinedButton>Explore Collections</OutlinedButton>
-        </Box>
-      </Box>
-
-      <Box className="phone_section">
-        <Box className="profile">
-          <Box className="avatar">
-            <Avatar
-              alt="Remy Traveler"
-              src="/assets/hiker.webp"
-              sx={{ width: 35, height: 35 }}
-            />
-          </Box>
-          <Box className="name">Remy Traveler</Box>
-        </Box>
-
-        <Box className="image_placeholder">
-          <img src="/assets/Beaches_for_Everyone_dadc6885a5.avif" alt="NFT" />
-        </Box>
-
-        <Box className="reactions">
-          <Box className="likes">
-            <FavoriteBorderIcon />
-            12k
-          </Box>
-          <Box className="comments">
-            <ChatBubbleOutlineIcon />
-            5000
+    <>
+      <SectionWrapper sx={sectionStyles}>
+        <Box className="left_content">
+          <h1>Own the Moment. Mint Instantly. Earn Forever.</h1>
+          <p>
+            InstaMint lets you transform everyday images into valuable digital
+            assets — minted instantly on <i>Etherlink</i>. Start earning
+            whenever fans collect your creations.
+          </p>
+          <Box className="buttons_wrapper">
+            <PrimaryButton onClick={() => setMintOpen(true)}>
+              Start Minting
+            </PrimaryButton>
+            <OutlinedButton onClick={() => router.push("/collections")}>
+              Explore Collections&nbsp;&nbsp;
+              <EastIcon />
+            </OutlinedButton>
           </Box>
         </Box>
 
-        <p className="price">12 ETH</p>
-        <SecondaryButton sx={{ mt: "10px" }}>Buy</SecondaryButton>
-      </Box>
-    </SectionWrapper>
+        <Box className="phone_section">
+          <Box className="profile">
+            <Box className="avatar">
+              <Avatar
+                alt="Remy Traveler"
+                src="/assets/hiker.webp"
+                sx={{ width: 35, height: 35 }}
+              />
+            </Box>
+            <Box className="name">Remy Traveler</Box>
+          </Box>
+
+          <Box className="image_placeholder">
+            <img src="/assets/Beaches_for_Everyone_dadc6885a5.avif" alt="NFT" />
+          </Box>
+
+          <Box className="reactions">
+            <Box className="likes">
+              <FavoriteBorderIcon />
+              12k
+            </Box>
+            <Box className="comments">
+              <ChatBubbleOutlineIcon />
+              5000
+            </Box>
+          </Box>
+
+          <p className="price">12 ETH</p>
+          <SecondaryButton sx={{ mt: "10px" }}>Buy</SecondaryButton>
+        </Box>
+      </SectionWrapper>
+      {isMintOpen && <MintModal onClose={() => setMintOpen(false)} />}
+    </>
   );
 };
 

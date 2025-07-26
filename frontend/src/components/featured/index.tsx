@@ -5,8 +5,10 @@ import EastIcon from "@mui/icons-material/East";
 import { FeaturedCards } from "./style";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import { useRouter } from "next/router";
 
 const FeaturedNFTS = () => {
+  const router = useRouter();
   return (
     <SectionWrapper
       sx={{
@@ -32,7 +34,7 @@ const FeaturedNFTS = () => {
             creations loved by our community
           </p>
         </Box>
-        <OutlinedButton>
+        <OutlinedButton onClick={() => router.push("/collections")}>
           View more&nbsp;&nbsp;
           <EastIcon />
         </OutlinedButton>
