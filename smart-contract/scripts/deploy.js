@@ -1,26 +1,50 @@
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
 const fs = require("fs");
+const path = require("path");
 
 async function main() {
-  const InstaMint = await hre.ethers.getContractFactory("InstaMint");
-  const instamint = await InstaMint.deploy();
-  await instamint.deployed();
-  console.log("instamint deployed to:", instamint.address);
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with the account:", deployer.address);
 
-  fs.writeFileSync(
-    "./config.js",
-    `
-  export const marketplaceAddress = "${instamint.address}"
-  `
+  const InstaMint = await ethers.getContractFactory("InstaMint");
+  const instaMint = await InstaMint.deploy();
+
+  await instaMint.waitForDeployment();
+  const contractAddress = await instaMint.getAddress();
+
+  console.log("InstaMint deployed to:", contractAddress);
+  console.log(
+    "Initial listing price:",
+    (await instaMint.getListingPrice()).toString()
   );
 
-  const data = {
-    address: instamint.address,
-    abi: JSON.parse(instamint.interface.format("json")),
+  // ✅ Define deployed folder path
+  const deployedDir = path.join(__dirname, "../deployed");
+
+  // ✅ Create folder if it doesn't exist
+  if (!fs.existsSync(deployedDir)) {
+    fs.mkdirSync(deployedDir);
+  }
+
+  // ✅ Write contract address to config.json
+  const config = {
+    address: contractAddress,
   };
 
-  //This writes the ABI and address to the mktplace.json
-  fs.writeFileSync("./Marketplace.json", JSON.stringify(data));
+  fs.writeFileSync(
+    path.join(deployedDir, "config.json"),
+    JSON.stringify(config, null, 2)
+  );
+
+  // ✅ Write ABI to instamint.json
+  const artifact = await hre.artifacts.readArtifact("InstaMint");
+
+  fs.writeFileSync(
+    path.join(deployedDir, "instamint.json"),
+    JSON.stringify(artifact.abi, null, 2)
+  );
+
+  console.log("✅ Wrote to deployed/config.json and deployed/instamint.json");
 }
 
 main()

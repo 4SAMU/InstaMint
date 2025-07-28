@@ -1,26 +1,13 @@
-# InstaMint | Own Your Moments. Mint Instantly. Earn Forever.
+# Sample Hardhat Project
 
-InstaMint is a decentralized NFT platform that lets users transform everyday moments into valuable digital collectibles, instantly minted on Etherlink.
+This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
 
-This repository contains the smart contract code and deployment scripts using [Hardhat](https://hardhat.org).
+Try running some of the following tasks:
 
----
-
-## 📦 Features
-
-- ERC-721 NFT Marketplace
-- Instant Minting of Media with Metadata
-- NFT Resale with Creator Compensation
-- Configurable Listing Fees
-- Ready for Etherlink Deployment
-
----
-
-## 🛠️ Getting Started
-
-### 1. Clone the Project
-
-```bash
-git clone https://github.com/4samu/instamint.git
-cd smart-contract
+```shell
+npx hardhat help
+npx hardhat test
+REPORT_GAS=true npx hardhat test
+npx hardhat node
+npx hardhat ignition deploy ./ignition/modules/Lock.js
 ```
