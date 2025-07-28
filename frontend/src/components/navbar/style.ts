@@ -6,6 +6,7 @@ export const NavbarWrapper = styled("header")(() => ({
   padding: "20px 400px",
   justifyContent: "space-between",
   background: "#e7a300",
+  width: "100vw",
 
   ".logo": {
     fontWeight: "600",

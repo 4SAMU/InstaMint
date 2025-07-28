@@ -28,3 +28,8 @@ a {
     color-scheme: dark;
   }
 }
+
+/*reduce rainbow buttons fontweight*/
+button[data-testid="rk-connect-button"] {
+  font-weight: 400 !important;
+}

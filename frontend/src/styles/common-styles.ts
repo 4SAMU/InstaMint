@@ -72,10 +72,11 @@ export const OutlinedButton = styled(Button)(() => ({
 }));
 
 export const SectionWrapper = styled("section")(() => ({
-  position:"relative",
+  position: "relative",
   display: "flex",
   minHeight: "200px",
   padding: "0 400px",
+  width: "100vw",
 
   h1: {
     fontSize: "28px",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { NavbarWrapper } from "./style";
 import { Box } from "@mui/material";
@@ -7,17 +8,28 @@ import {
   TextButton,
 } from "@/styles/common-styles";
 import MintModal from "../modals/MintModal";
-import AuthModal from "../modals/AuthModal"; // ⬅️ Make sure this path is correct
+import AuthModal from "../modals/AuthModal";
 import { useRouter } from "next/router";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTour } from "@/context/TourContext";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const Navbar = () => {
   const router = useRouter();
+  const { startTour, completed } = useAppTour();
+  const { isLoggedIn, user, logout } = useAuth();
+
   const [isMintOpen, setMintOpen] = useState(false);
   const [isAuthOpen, setAuthOpen] = useState(false);
 
+  const handlePrimaryClick = () => {
+    if (isLoggedIn) return; // Don't open auth modal if already logged in
+    setAuthOpen(true);
+  };
+
   const handleConnectWallet = () => {
-    // Replace with actual wallet connection logic
-    console.log("Connect wallet clicked");
+    // Handle wallet connection logic here if needed
+    setAuthOpen(false); // Close auth modal after connecting
   };
 
   return (
@@ -28,30 +40,47 @@ const Navbar = () => {
         </Box>
 
         <Box className="buttons">
-          <TextButton>Explore</TextButton>
+          <TextButton onClick={() => router.push("/explore")}>
+            Explore
+          </TextButton>
           <TextButton onClick={() => setMintOpen(true)}>Mint</TextButton>
-          <TextButton>My Collections</TextButton>
-          <OutlinedButton
-            sx={{
-              padding: "2px 25px",
-              ":hover": {
-                background: "#36270390",
-                color: "white",
-                border: "1px solid white",
-              },
-            }}
-          >
-            get started
-          </OutlinedButton>
-          <PrimaryButton onClick={() => setAuthOpen(true)}>
-            Login / Sign Up
-          </PrimaryButton>
+          <TextButton onClick={() => router.push("/collections")}>
+            My Collections
+          </TextButton>
+
+          {!completed && (
+            <OutlinedButton
+              sx={{
+                padding: "2px 25px",
+                ":hover": {
+                  background: "#36270390",
+                  color: "white",
+                  border: "1px solid white",
+                },
+              }}
+              onClick={() => startTour()}
+            >
+              Get Started
+            </OutlinedButton>
+          )}
+
+          {isLoggedIn ? (
+            <Box className="login-signup">
+              <ConnectButton />
+            </Box>
+          ) : (
+            <PrimaryButton
+              className="login-signup"
+              onClick={handlePrimaryClick}
+            >
+              Login / Sign Up
+            </PrimaryButton>
+          )}
         </Box>
       </NavbarWrapper>
 
       {isMintOpen && <MintModal onClose={() => setMintOpen(false)} />}
 
-      {/* 🔓 AuthModal integration */}
       <AuthModal
         open={isAuthOpen}
         onClose={() => setAuthOpen(false)}

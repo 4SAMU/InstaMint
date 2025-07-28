@@ -113,10 +113,16 @@ const HeroSection = () => {
             whenever fans collect your creations.
           </p>
           <Box className="buttons_wrapper">
-            <PrimaryButton onClick={() => setMintOpen(true)}>
+            <PrimaryButton
+              className="mint-button"
+              onClick={() => setMintOpen(true)}
+            >
               Start Minting
             </PrimaryButton>
-            <OutlinedButton onClick={() => router.push("/collections")}>
+            <OutlinedButton
+              className="explore-collection"
+              onClick={() => router.push("/collections")}
+            >
               Explore Collections&nbsp;&nbsp;
               <EastIcon />
             </OutlinedButton>
