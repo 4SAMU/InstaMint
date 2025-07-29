@@ -22,31 +22,12 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
         padding: 2,
         overflow: "auto",
         height: "calc(100vh - 80px)",
-
-        "&::-webkit-scrollbar": {
-            width: "6px",
-          },
-          "&::-webkit-scrollbar-track": {
-            background: "#f1f1f1",
-            borderRadius: "10px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "#888",
-            borderRadius: "10px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            background: "#555",
-          },
       }}
     >
       {items.map((item) => (
         <Box
           key={item.id}
-          sx={{
-            width: "30%",
-            minWidth: "200px",
-            cursor: "pointer",
-          }}
+          sx={{ width: "30%", minWidth: "200px", cursor: "pointer" }}
           onClick={() => onCardClick(item)}
         >
           <img

@@ -13,9 +13,12 @@ import { useRouter } from "next/router";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTour } from "@/context/TourContext";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 
 const Navbar = () => {
   const router = useRouter();
+
+  const { isConnected } = useAccount();
   const { startTour, completed } = useAppTour();
   const { isLoggedIn, user, logout } = useAuth();
 
@@ -25,11 +28,6 @@ const Navbar = () => {
   const handlePrimaryClick = () => {
     if (isLoggedIn) return; // Don't open auth modal if already logged in
     setAuthOpen(true);
-  };
-
-  const handleConnectWallet = () => {
-    // Handle wallet connection logic here if needed
-    setAuthOpen(false); // Close auth modal after connecting
   };
 
   return (
@@ -48,21 +46,24 @@ const Navbar = () => {
             My Collections
           </TextButton>
 
-          {!completed && (
-            <OutlinedButton
-              sx={{
-                padding: "2px 25px",
-                ":hover": {
-                  background: "#36270390",
-                  color: "white",
-                  border: "1px solid white",
-                },
-              }}
-              onClick={() => startTour()}
-            >
-              Get Started
-            </OutlinedButton>
-          )}
+          {router.pathname === "/" &&
+            !completed &&
+            !isConnected &&
+            !isLoggedIn && (
+              <OutlinedButton
+                sx={{
+                  padding: "2px 25px",
+                  ":hover": {
+                    background: "#36270390",
+                    color: "white",
+                    border: "1px solid white",
+                  },
+                }}
+                onClick={() => startTour()}
+              >
+                Get Started
+              </OutlinedButton>
+            )}
 
           {isLoggedIn ? (
             <Box className="login-signup">
@@ -79,13 +80,14 @@ const Navbar = () => {
         </Box>
       </NavbarWrapper>
 
-      {isMintOpen && <MintModal onClose={() => setMintOpen(false)} />}
+      {isMintOpen && (
+        <MintModal
+          isMintModalOpen={isMintOpen}
+          onClose={() => setMintOpen(false)}
+        />
+      )}
 
-      <AuthModal
-        open={isAuthOpen}
-        onClose={() => setAuthOpen(false)}
-        onConnectWallet={handleConnectWallet}
-      />
+      <AuthModal open={isAuthOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 };

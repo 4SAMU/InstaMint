@@ -42,7 +42,7 @@ const FeaturedNFTS = () => {
       <FeaturedCards>
         <Box className="the_card">
           <Box className="image">
-            <img src="" alt="" />
+            {/* <img src="" alt="" /> */}
             <div className="overlay">
               <span className="likes_count">
                 <FavoriteBorderIcon /> 23
@@ -62,7 +62,7 @@ const FeaturedNFTS = () => {
 
         <Box className="the_card">
           <Box className="image">
-            <img src="" alt="" />
+            {/* <img src="" alt="" /> */}
             <div className="overlay">
               <span className="likes_count">
                 <FavoriteBorderIcon /> 23
@@ -82,7 +82,7 @@ const FeaturedNFTS = () => {
 
         <Box className="the_card">
           <Box className="image">
-            <img src="" alt="" />
+            {/* <img src="" alt="" /> */}
             <div className="overlay">
               <span className="likes_count">
                 <FavoriteBorderIcon /> 23
@@ -102,7 +102,7 @@ const FeaturedNFTS = () => {
 
         <Box className="the_card">
           <Box className="image">
-            <img src="" alt="" />
+            {/* <img src="" alt="" /> */}
             <div className="overlay">
               <span className="likes_count">
                 <FavoriteBorderIcon /> 23

@@ -4,26 +4,37 @@ import DefaultLayout from "@/components/layout";
 import { SectionWrapper } from "@/styles/common-styles";
 import LeftSideDetail from "@/components/ExplorePage/LeftSideDetails";
 import RightSideGrid from "@/components/ExplorePage/RightSideCardsGrid";
-
-const dummyNFTs = Array.from({ length: 200 }, (_, i) => {
-  const id = (i + 1).toString();
-  return {
-    id,
-    title: `NFT #${id}`,
-    image: `https://picsum.photos/seed/nft${id}/400/400`,
-  };
-});
+import { useInstaMint } from "@/context/InstaMintNfts";
 
 const Collections = () => {
+  const { instaMintNFTitems } = useInstaMint();
   const [selectedNFT, setSelectedNFT] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleCardClick = (item: any) => {
-    setSelectedNFT(item);
+  const handleCardClick = async (item: any) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/nft/${item.id}`);
+      if (!res.ok) throw new Error("Failed to fetch NFT");
+      const nft = await res.json();
+      setSelectedNFT(nft);
+    } catch (err) {
+      console.error("Error loading NFT:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCloseDetail = () => {
     setSelectedNFT(null);
   };
+
+  // Transform context items into what RightSideGrid expects
+  const gridItems = instaMintNFTitems.map((nft) => ({
+    id: nft.tokenId,
+    title: nft.metadata.name,
+    image: nft.metadata.image,
+  }));
 
   return (
     <DefaultLayout>
@@ -47,7 +58,24 @@ const Collections = () => {
         {selectedNFT && (
           <LeftSideDetail data={selectedNFT} onClose={handleCloseDetail} />
         )}
-        <RightSideGrid items={dummyNFTs} onCardClick={handleCardClick} />
+
+        <RightSideGrid
+          items={gridItems}
+          onCardClick={(item: any) => handleCardClick(item)}
+        />
+
+        {loading && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <p>Loading NFT...</p>
+          </div>
+        )}
       </SectionWrapper>
     </DefaultLayout>
   );

@@ -12,9 +12,10 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import ReplyIcon from "@mui/icons-material/Reply";
+import { useAuth } from "@/context/AuthContext";
 
 interface Comment {
-  id: string;
+  _id: string;
   author: string;
   text: string;
   replies?: Comment[];
@@ -26,13 +27,11 @@ interface LeftSideDetailProps {
 }
 
 const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
-  const [comments, setComments] = useState<Comment[]>([
-    { id: "1", author: "User1", text: "Nice NFT! 🔥" },
-    { id: "2", author: "User2", text: "Where can I buy this?" },
-    { id: "3", author: "User3", text: "This is amazing artwork!" },
-    { id: "4", author: "User4", text: "How was this created?" },
-    { id: "5", author: "User5", text: "The colors are fantastic!" },
-  ]);
+  const { isLoggedIn, user } = useAuth();
+  console.log(isLoggedIn, user);
+  const [comments, setComments] = useState<Comment[]>(
+    data?.nft?.comments || []
+  );
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
@@ -41,44 +40,49 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
 
   // Auto-scroll to bottom when new comments are added
   useEffect(() => {
-    scrollToBottom();
+    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
-  const scrollToBottom = () => {
-    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const comment: Comment = {
-        id: Date.now().toString(),
-        author: "CurrentUser",
-        text: newComment,
-      };
-      setComments([...comments, comment]);
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+    try {
+      const res = await fetch(
+        `/api/nft/${data.nft._id || data.nft.tokenId}/comment`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ author: "CurrentUser", text: newComment }),
+        }
+      );
+      const { comments } = await res.json();
+      setComments(comments);
       setNewComment("");
+    } catch (err) {
+      console.error("Add Comment Error", err);
     }
   };
 
-  const handleAddReply = (parentId: string) => {
-    if (replyText.trim()) {
-      const updatedComments = comments.map((comment) => {
-        if (comment.id === parentId) {
-          const reply: Comment = {
-            id: `${parentId}-${Date.now()}`,
+  const handleAddReply = async (parentId: string) => {
+    if (!replyText.trim()) return;
+    try {
+      const res = await fetch(
+        `/api/nft/${data.nft._id || data.nft.tokenId}/reply`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            parentId,
             author: "CurrentUser",
             text: replyText,
-          };
-          return {
-            ...comment,
-            replies: [...(comment.replies || []), reply],
-          };
+          }),
         }
-        return comment;
-      });
-      setComments(updatedComments);
+      );
+      const { comments } = await res.json();
+      setComments(comments);
       setReplyText("");
       setReplyingTo(null);
+    } catch (err) {
+      console.error("Reply Error", err);
     }
   };
 
@@ -95,7 +99,7 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        maxHeight: "calc(100vh - 100px)", // Set a maximum height for the container
+        maxHeight: "calc(100vh - 100px)",
       }}
     >
       <IconButton
@@ -111,31 +115,37 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
         <CloseIcon />
       </IconButton>
 
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        {data?.title || "NFT Detail"}
+      {/* NFT Details */}
+      <Typography variant="h6" sx={{ mb: 1 }}>
+        {data?.nft?.metadata?.name || "NFT Detail"}
       </Typography>
 
       <Box sx={{ mb: 2 }}>
         <img
-          src={data?.image}
-          alt={data?.title}
+          src={data?.nft?.metadata?.image}
+          alt={data?.nft?.metadata?.name}
           style={{ width: "100%", borderRadius: 8 }}
         />
       </Box>
 
-      <Typography variant="body2">❤️ 100 Likes</Typography>
-      <Typography variant="body2">💬 {comments.length} Comments</Typography>
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        {data?.nft?.metadata?.description || "No description available"}
+      </Typography>
 
+      <Typography variant="body2">❤️ 100 Likes</Typography>
+      <Typography variant="body2">
+        💬 {comments?.length || 0} Comments
+      </Typography>
+
+      {/* Comments Section */}
       <Box
         ref={commentsContainerRef}
         mt={2}
         sx={{
           flexGrow: 1,
           overflowY: "auto",
-          maxHeight: "400px", // Fixed height for comments section
-          "&::-webkit-scrollbar": {
-            width: "6px",
-          },
+          maxHeight: "400px",
+          "&::-webkit-scrollbar": { width: "6px" },
           "&::-webkit-scrollbar-track": {
             background: "#f1f1f1",
             borderRadius: "10px",
@@ -153,9 +163,9 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
           Comments
         </Typography>
 
-        {comments.map((comment) => (
+        {comments?.map((comment) => (
           <Box
-            key={comment.id}
+            key={comment._id}
             sx={{ mb: 2, borderBottom: "1px solid #eee", pb: 1 }}
           >
             <Stack
@@ -177,8 +187,7 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
               size="small"
               startIcon={<ReplyIcon fontSize="small" />}
               onClick={() => {
-                setReplyingTo(replyingTo === comment.id ? null : comment.id);
-                // Scroll to the reply input when clicked
+                setReplyingTo(replyingTo === comment._id ? null : comment._id);
                 setTimeout(() => {
                   commentsContainerRef.current?.scrollTo({
                     top: commentsContainerRef.current.scrollHeight,
@@ -191,7 +200,7 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
               Reply
             </Button>
 
-            {replyingTo === comment.id && (
+            {replyingTo === comment._id && (
               <Box sx={{ ml: 4, mt: 1, display: "flex", alignItems: "center" }}>
                 <TextField
                   fullWidth
@@ -202,15 +211,15 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
                   onChange={(e) => setReplyText(e.target.value)}
                   sx={{ mr: 1 }}
                 />
-                <IconButton onClick={() => handleAddReply(comment.id)}>
+                <IconButton onClick={() => handleAddReply(comment._id)}>
                   <SendIcon />
                 </IconButton>
               </Box>
             )}
 
-            {comment.replies?.map((reply) => (
+            {comment.replies?.map((reply, idx) => (
               <Box
-                key={reply.id}
+                key={idx}
                 sx={{ ml: 4, mt: 1, pl: 2, borderLeft: "2px solid #ddd" }}
               >
                 <Stack
@@ -234,6 +243,7 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
         <div ref={commentsEndRef} />
       </Box>
 
+      {/* Add Comment Input */}
       <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid #ddd" }}>
         <Typography variant="subtitle2" gutterBottom>
           Add a comment

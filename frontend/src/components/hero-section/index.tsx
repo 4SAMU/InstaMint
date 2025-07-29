@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   OutlinedButton,
   PrimaryButton,
@@ -11,6 +11,9 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import EastIcon from "@mui/icons-material/East";
 import MintModal from "../modals/MintModal";
 import { useRouter } from "next/router";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import toast from "react-hot-toast";
 
 const sectionStyles = {
   alignItems: "center",
@@ -101,6 +104,48 @@ const sectionStyles = {
 const HeroSection = () => {
   const router = useRouter();
   const [isMintOpen, setMintOpen] = useState(false);
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const [pendingRedirect, setPendingRedirect] = useState(false);
+  const [connectTimeout, setConnectTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
+
+  const handleExploreCollections = () => {
+    if (!isConnected) {
+      toast.error("Please connect wallet to view collectibles");
+      setPendingRedirect(true);
+
+      const timeout = setTimeout(() => {
+        openConnectModal?.();
+      }, 2500);
+
+      setConnectTimeout(timeout);
+      return;
+    }
+    router.push("/collections");
+  };
+
+  // cleanup if user cancels (wallet still not connected)
+  useEffect(() => {
+    if (!pendingRedirect) return;
+
+    // if after 10s they haven’t connected, cancel
+    const cancelTimer = setTimeout(() => {
+      setPendingRedirect(false);
+    }, 10000);
+
+    return () => clearTimeout(cancelTimer);
+  }, [pendingRedirect]);
+
+  // auto redirect when connected
+  useEffect(() => {
+    if (pendingRedirect && isConnected) {
+      router.push("/collections");
+      setPendingRedirect(false);
+      if (connectTimeout) clearTimeout(connectTimeout);
+    }
+  }, [pendingRedirect, isConnected, router, connectTimeout]);
 
   return (
     <>
@@ -121,7 +166,7 @@ const HeroSection = () => {
             </PrimaryButton>
             <OutlinedButton
               className="explore-collection"
-              onClick={() => router.push("/collections")}
+              onClick={handleExploreCollections}
             >
               Explore Collections&nbsp;&nbsp;
               <EastIcon />
@@ -156,11 +201,16 @@ const HeroSection = () => {
             </Box>
           </Box>
 
-          <p className="price">12 ETH</p>
+          <p className="price">12 XTZ</p>
           <SecondaryButton sx={{ mt: "10px" }}>Buy</SecondaryButton>
         </Box>
       </SectionWrapper>
-      {isMintOpen && <MintModal onClose={() => setMintOpen(false)} />}
+      {isMintOpen && (
+        <MintModal
+          isMintModalOpen={isMintOpen}
+          onClose={() => setMintOpen(false)}
+        />
+      )}
     </>
   );
 };

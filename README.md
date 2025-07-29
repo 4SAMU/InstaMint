@@ -115,7 +115,7 @@ module.exports = {
 Create a `.env` file:
 
 ```env
-ETHERLINK_PRIVATE_KEY="your_private_key"
+ETHERLINK_PRIVATE_KEY="your_ETHERLINK_PRIVATE_KEY"
 ```
 
 Then run:
@@ -168,10 +168,10 @@ getListingPrice()
 ### Featured Collectible
 
 > **Remy Traveler**  
-> Visited Bahamas – *Enjoyed the sun kisses, wanna go back there fr*  
+> Visited Bahamas – _Enjoyed the sun kisses, wanna go back there fr_  
 > 🖼️ NFT ID: 5000  
 > ❤️ Reactions: 12k  
-> 💰 Value: 12 ETH  
+> 💰 Value: 12 ETH
 
 ---
 

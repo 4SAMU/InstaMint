@@ -1,23 +1,53 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
-import { Typography, ClickAwayListener } from "@mui/material";
+import {
+  Typography,
+  ClickAwayListener,
+  CircularProgress,
+  Box,
+} from "@mui/material";
 import {
   InnerModal,
   ModalWrapper,
+  PrimaryButton,
   SecondaryButton,
   StyledTextField,
   UploadPreview,
 } from "@/styles/common-styles";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { ethers } from "ethers";
+import { InstaMintABI } from "@/config/instamint-abi";
+import toast from "react-hot-toast";
+import { ContractAddress } from "@/config/contract-address";
+import { useAuth } from "@/context/AuthContext";
+import AuthModal from "./AuthModal";
 
 interface MintModalProps {
   onClose: () => void;
+  isMintModalOpen: boolean;
 }
 
-const MintModal: React.FC<MintModalProps> = ({ onClose }) => {
+const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
+  const { isConnected } = useAccount();
+  const { isLoggedIn } = useAuth();
+  const { openConnectModal } = useConnectModal();
+
+  const [isAuthOpen, setAuthOpen] = useState(false);
+
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [rejected, setRejected] = useState(false);
+
+  const getSigner = async () => {
+    if (!window.ethereum) throw new Error("MetaMask not detected");
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    return provider.getSigner();
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -27,15 +57,129 @@ const MintModal: React.FC<MintModalProps> = ({ onClose }) => {
     }
   };
 
-  const handleSubmit = () => {
+  // Upload metadata to IPFS
+  const uploadAndMint = async () => {
+    const trimmedDescription = description.slice(0, 250);
+
+    const formData = new FormData();
+    formData.append("file", image!);
+    formData.append("name", title || "Untitled NFT");
+    formData.append("description", trimmedDescription);
+    formData.append("price", price);
+
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (!res.ok) throw new Error("Upload API failed");
+    const { tokenURI } = await res.json();
+    return tokenURI as string;
+  };
+
+  // Mint NFT and extract tokenId from Transfer event
+  const mintNFT = async (tokenURI: string, price: string) => {
+    const signer = await getSigner();
+    const contract = new ethers.Contract(ContractAddress, InstaMintABI, signer);
+
+    const listingFeeWei = await contract.getListingPrice();
+    const priceInWei = ethers.parseEther(price);
+
+    const tx = await contract.createToken(tokenURI, priceInWei, {
+      value: listingFeeWei,
+    });
+
+    const receipt = await tx.wait();
+
+    // Parse Transfer event
+    const transferEvent = receipt.logs
+      .map((log: any) => {
+        try {
+          return contract.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((parsed: any) => parsed && parsed.name === "Transfer");
+
+    if (!transferEvent) throw new Error("No Transfer event found");
+
+    const tokenId = transferEvent.args?.tokenId.toString();
+    return { tx, tokenId };
+  };
+
+  const handleSubmit = async () => {
+    setRejected(false);
+
     if (!image || !description || !price) {
-      alert("Please fill all required fields.");
+      toast.error("Please fill all required fields");
       return;
     }
 
-    // Mint logic
-    console.log({ image, title, description, price });
-    onClose();
+    try {
+      ethers.parseEther(price); // validate price
+    } catch {
+      toast.error("Invalid price format");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Upload metadata
+      const tokenURI = await uploadAndMint();
+
+      // Mint on chain
+      const { tokenId } = await mintNFT(tokenURI, price);
+
+      // Get wallet address (seller/owner)
+      const signer = await getSigner();
+      const userAddress = await signer.getAddress();
+
+      // Fetch metadata from IPFS
+      const gatewayURI = `https://ipfs.io/ipfs/${tokenURI.slice(7)}`;
+      const metadataRes = await fetch(gatewayURI);
+      const metadata = await metadataRes.json();
+
+      const imageUrl = metadata.image?.startsWith("ipfs://")
+        ? `https://ipfs.io/ipfs/${metadata.image.slice(7)}`
+        : metadata.image;
+
+      // Save NFT in backend
+      await fetch("/api/nft/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          tokenId,
+          tokenURI,
+          seller: userAddress,
+          owner: userAddress,
+          metadata: {
+            name: title || metadata.name,
+            description: description || metadata.description,
+            image: imageUrl,
+            price,
+            attributes: metadata.attributes || [],
+          },
+        }),
+      });
+
+      toast.success(`NFT minted! Token ID: ${tokenId}`);
+      onClose();
+    } catch (err: any) {
+      if (
+        err.code === 4001 ||
+        err.message?.toLowerCase().includes("user denied") ||
+        err.message?.toLowerCase().includes("user rejected action")
+      ) {
+        toast("You cancelled the transaction", { icon: "❌" });
+        setRejected(true);
+      } else {
+        toast.error(err.message ?? "Mint failed");
+      }
+      console.error("Error:", err);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -52,6 +196,7 @@ const MintModal: React.FC<MintModalProps> = ({ onClose }) => {
             id="mint-upload"
             style={{ display: "none" }}
             onChange={handleImageChange}
+            disabled={isUploading}
           />
           <label htmlFor="mint-upload">
             <UploadPreview>
@@ -59,11 +204,7 @@ const MintModal: React.FC<MintModalProps> = ({ onClose }) => {
                 <img
                   src={preview}
                   alt="Preview"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
                 <Typography color="#aaa">Click to upload image</Typography>
@@ -77,38 +218,88 @@ const MintModal: React.FC<MintModalProps> = ({ onClose }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             fullWidth
+            disabled={isUploading}
           />
 
+          {/* Description with character counter */}
           <StyledTextField
-            label="Caption / Description *"
+            label="Description *"
             variant="outlined"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= 250) {
+                setDescription(e.target.value);
+              }
+            }}
             fullWidth
             required
             multiline
+            disabled={isUploading}
+            helperText={`${description.length}/250 characters`}
+            slotProps={{
+              formHelperText: {
+                style: {
+                  textAlign: "right",
+                  color: description.length === 250 ? "red" : "#888",
+                },
+              },
+            }}
           />
 
           <StyledTextField
-            label="Price (ETH) *"
+            label="Price (XTZ) *"
             variant="outlined"
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             fullWidth
             required
+            onKeyDown={(e) => {
+              if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+            }}
+            sx={{
+              "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                {
+                  WebkitAppearance: "none",
+                  margin: 0,
+                },
+            }}
+            disabled={isUploading}
           />
 
-          <SecondaryButton
-            sx={{
-              borderRadius: "30px",
-              padding: "10px 16px",
-              fontWeight: 600,
-            }}
-            onClick={handleSubmit}
-          >
-            Mint Now
-          </SecondaryButton>
+          {!isLoggedIn ? (
+            <PrimaryButton onClick={() => setAuthOpen(true)}>
+              Login / Signup
+            </PrimaryButton>
+          ) : !isConnected ? (
+            <PrimaryButton onClick={openConnectModal}>
+              Connect Wallet
+            </PrimaryButton>
+          ) : (
+            <Box sx={{ display: "flex", gap: "10px", flexDirection: "column" }}>
+              <SecondaryButton onClick={handleSubmit} disabled={isUploading}>
+                {isUploading ? (
+                  <>
+                    <CircularProgress size={20} sx={{ color: "#ffffff" }} />
+                    <span style={{ marginLeft: 8, color: "#fff" }}>
+                      Minting...
+                    </span>
+                  </>
+                ) : (
+                  "Mint Now"
+                )}
+              </SecondaryButton>
+              {rejected && !isUploading && (
+                <PrimaryButton onClick={handleSubmit}>Retry</PrimaryButton>
+              )}
+            </Box>
+          )}
+
+          <AuthModal
+            open={isAuthOpen}
+            onClose={() => setAuthOpen(false)}
+            isMintModalOpen={isMintModalOpen}
+          />
         </InnerModal>
       </ClickAwayListener>
     </ModalWrapper>

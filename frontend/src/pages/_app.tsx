@@ -1,4 +1,3 @@
-import { config } from "@/config";
 import { AuthProvider } from "@/context/AuthContext";
 import { TourProvider } from "@/context/TourContext";
 import "@/styles/globals.css";
@@ -10,6 +9,9 @@ import { ReactElement, ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 import { myCustomTheme } from "@/utils/theme";
+import { rainbowConfig } from "@/config/rainbowConfig";
+import { Toaster } from "react-hot-toast";
+import { InstaMintProvider } from "@/context/InstaMintNfts";
 
 // Types for page and layout props
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
@@ -26,12 +28,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={rainbowConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider initialChain={2} theme={myCustomTheme}>
           <AuthProvider>
             <TourProvider>
-              {getLayout(<Component {...pageProps} />)}
+              <InstaMintProvider>
+                {getLayout(<Component {...pageProps} />)}
+                <Toaster />
+              </InstaMintProvider>
             </TourProvider>
           </AuthProvider>
         </RainbowKitProvider>

@@ -6,12 +6,12 @@ module.exports = {
   networks: {
     etherlinkTestnet: {
       url: "https://node.ghostnet.etherlink.com",
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: [process.env.ETHERLINK_PRIVATE_KEY],
       chainId: 128123,
     },
     etherlinkMainnet: {
       url: "https://node.etherlink.com",
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: [process.env.ETHERLINK_PRIVATE_KEY],
       chainId: 42793,
     },
   },
