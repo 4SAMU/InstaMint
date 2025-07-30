@@ -11,10 +11,15 @@ const Footer = () => {
         flexWrap: "wrap",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        padding: "60px 400px",
         background: "#f8f9fa",
         borderTop: "1px solid #ddd",
         gap: "2rem",
+        "@media (min-width: 1536px)": {
+          padding: "60px 400px",
+        },
+        "@media (max-width: 1535px)": {
+          padding: "40px 8%",
+        },
 
         a: {
           display: "flex",

@@ -9,7 +9,7 @@ export const PrimaryButton = styled(Button)(() => ({
   padding: "0px 20px",
   transition: "all 0.3s ease-in-out",
   border: "1px solid transparent",
-  minHeight: "35px",
+  height: "40px",
 
   ":hover": {
     background: "#302b03",
@@ -26,6 +26,8 @@ export const SecondaryButton = styled(Button)(() => ({
   padding: "5px 20px",
   fontWeight: "500",
   transition: "all 0.3s ease-in-out",
+  height: "40px",
+  width: "100%",
 }));
 
 export const TextButton = styled(Button)(() => ({
@@ -33,6 +35,7 @@ export const TextButton = styled(Button)(() => ({
   color: "#000000",
   fontSize: "16px",
   fontWeight: "500",
+  height: "40px",
   ":after": {
     content: "''",
     position: "absolute",
@@ -61,6 +64,9 @@ export const OutlinedButton = styled(Button)(() => ({
   borderRadius: "20px",
   transition: "all 0.3s ease-in-out",
   padding: "5px 10px",
+  width: "100%",
+  height: "40px",
+  maxWidth: "fit-content",
   svg: {
     transition: "transform 0.3s ease-in-out",
   },
@@ -95,6 +101,13 @@ export const SectionWrapper = styled("section")(() => ({
     fontSize: "16px",
     fontWeight: "400",
     lineHeight: "24px",
+  },
+
+  "@media (max-width: 1535px)": {
+    padding: "0 15%",
+  },
+  "@media (max-width: 899px)": {
+    padding: "0 8%",
   },
 }));
 

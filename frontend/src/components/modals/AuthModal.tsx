@@ -155,7 +155,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             {/* Wallet connect logic */}
             {!isConnected ? (
               <SecondaryButton
-                sx={{ mt: 2, borderRadius: "15px", fontWeight: 600 }}
+                sx={{ mt: 2, fontWeight: 600 }}
                 onClick={openConnectModal}
                 disabled={loading}
               >
@@ -176,7 +176,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             )}
 
             <PrimaryButton
-              sx={{ mt: 2, borderRadius: "15px", fontWeight: 600 }}
+              sx={{ mt: 2, fontWeight: 600 }}
               onClick={handleSubmit}
               disabled={loading}
             >

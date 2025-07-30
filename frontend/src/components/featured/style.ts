@@ -6,6 +6,9 @@ export const FeaturedCards = styled(Box)(() => ({
   justifyContent: "space-between",
   flexWrap: "wrap",
   marginTop: "20px",
+  "@media (max-width: 599px)": {
+    justifyContent: "center",
+  },
 
   ".the_card": {
     display: "flex",

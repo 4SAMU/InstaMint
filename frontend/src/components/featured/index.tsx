@@ -13,12 +13,23 @@ const FeaturedNFTS = () => {
     <SectionWrapper
       sx={{
         flexDirection: "column",
-        padding: "50px 400px 150px 400px",
+        "@media (min-width: 1536px)": {
+          padding: "50px 400px 150px 400px",
+        },
+        "@media (max-width: 1535px)": {
+          padding: "50px 8% 80px 8%",
+        },
+        "@media (max-width: 599px)": {
+          padding: "0px 8% 80px 8%",
+          alignItems: "center",
+        },
         ".header": {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "15px",
         },
         ".title": {
           display: "flex",

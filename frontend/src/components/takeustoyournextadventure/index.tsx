@@ -28,6 +28,21 @@ const TakeUsToYourNextAdventure = () => {
             fontWeight: "500",
             marginTop: "20px",
           },
+          "@media (min-width: 1200px)": {
+            padding: "200px 400px",
+            h1: {
+              width: "500px",
+            },
+          },
+          "@media (max-width: 1199px)": {
+            justifyContent: "center",
+            h1: {
+              width: "100%",
+            },
+            ".paragraph": {
+              width: "100%",
+            },
+          },
         }}
       >
         <h1>Your Memories Deserve the Blockchain.</h1>

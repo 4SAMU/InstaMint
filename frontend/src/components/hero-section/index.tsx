@@ -26,11 +26,12 @@ const sectionStyles = {
     display: "flex",
     flexDirection: "column",
     gap: "20px",
-    width: "400px",
+    maxWidth: "400px",
 
     ".buttons_wrapper": {
       display: "flex",
       flexDirection: "row",
+      flexWrap: "wrap",
       gap: "20px",
     },
   },
@@ -98,6 +99,18 @@ const sectionStyles = {
         fontSize: "15px",
       },
     },
+  },
+  "@media (max-width: 1535px)": {
+    padding: "80px 15% 0 15%",
+  },
+  "@media (max-width: 899px)": {
+    padding: "80px 8% 0 8%",
+  },
+
+  "@media (max-width: 599px)": {
+    padding: "80px 5% 0 5%",
+    flexDirection: "column",
+    gap: "50px",
   },
 };
 

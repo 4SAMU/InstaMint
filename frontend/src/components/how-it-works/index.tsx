@@ -11,9 +11,15 @@ const HowItWorks = () => {
   return (
     <SectionWrapper
       sx={{
-        padding: { xs: "60px 20px", md: "100px 200px", lg: "100px 400px" },
+        padding: "100px 400px",
         flexDirection: "column",
         gap: "40px",
+        "@media (max-width: 1535px)": {
+          padding: "100px 15% 100px 15%",
+        },
+        "@media (max-width: 899px)": {
+          padding: "100px 8% 100px 8%",
+        },
 
         ".steps": {
           display: "flex",

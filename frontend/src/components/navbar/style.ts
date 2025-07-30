@@ -19,4 +19,7 @@ export const NavbarWrapper = styled("header")(() => ({
     flexDirection: "row",
     gap: "50px",
   },
+  "@media (max-width: 1535px)": {
+    padding: "20px 15%",
+  },
 }));
