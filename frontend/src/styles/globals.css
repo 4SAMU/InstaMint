@@ -33,3 +33,24 @@ a {
 button[data-testid="rk-connect-button"] {
   font-weight: 400 !important;
 }
+
+/* In a global CSS file (e.g., styles/globals.css or similar) */
+
+.my-masonry-grid {
+  display: -webkit-box; /* Needed for Safari */
+  display: -ms-flexbox; /* Needed for IE10 and 11 */
+  display: flex;
+  margin-left: -16px; /* Adjust this value to match your desired gap between columns */
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  padding-left: 16px; /* Adjust this value to match your desired gap between columns */
+  background-clip: padding-box;
+}
+
+/* Optional: remove any default padding if it interferes */
+.my-masonry-grid_column > div {
+  /* Target the direct children of the column (your Box components) */
+  background: transparent; /* Ensure no background from the column itself */
+}
