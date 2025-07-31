@@ -1,19 +1,20 @@
-// RightSide.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // Import useMemo
 import { Box, Skeleton, Typography } from "@mui/material";
-import Masonry from "react-masonry-css"; // Import Masonry component
+import Masonry from "react-masonry-css";
 
 interface RightSideGridProps {
   items: any[];
   onCardClick: (item: any) => void;
   loading?: boolean;
+  isDetailViewOpen: boolean; // <-- Add this new prop
 }
 
 const RightSideGrid: React.FC<RightSideGridProps> = ({
   items,
   onCardClick,
   loading = false,
+  isDetailViewOpen, // <-- Receive the new prop
 }) => {
   const [isLoading, setIsLoading] = useState(loading);
 
@@ -21,43 +22,69 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
     setIsLoading(loading);
   }, [loading]);
 
-  // Define breakpoints for responsive columns
-  // You can adjust these values based on your desired layout and screen sizes
-  const breakpointColumnsObj = {
-    default: 5, // Default: 5 columns
-    1400: 4, // 4 columns on screens <= 1400px
+  // Define two sets of breakpoint column configurations
+  const normalBreakpointColumns = {
+    default: 4, // Default: 4 columns when detail is NOT open
     1100: 3, // 3 columns on screens <= 1100px
     700: 2, // 2 columns on screens <= 700px
     500: 1, // 1 column on screens <= 500px
   };
 
+  const detailViewBreakpointColumns = {
+    default: 3, // Default: 3 columns when detail IS open (reduced from 4)
+    1100: 2, // 2 columns on screens <= 1100px (reduced from 3)
+    700: 2, // 2 columns (remains 2 if 700px is still wide enough for 2)
+    500: 1, // 1 column (remains 1)
+  };
+
+  // Use useMemo to dynamically select the breakpoint configuration
+  const currentBreakpointColumns = useMemo(() => {
+    return isDetailViewOpen
+      ? detailViewBreakpointColumns
+      : normalBreakpointColumns;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDetailViewOpen]); // Recalculate only when isDetailViewOpen changes
+
   return (
     <Box
       sx={{
-        flex: 1, // Keep flex: 1 if this component is a child of a flex container
-        // Remove display: "flex", flexWrap: "wrap", justifyContent: "center"
-        // These will be handled by the Masonry component internally
+        flex: 1, // Allows RightSideGrid to take remaining space
         padding: 2,
-        overflowY: "auto", // Use overflowY for vertical scrolling if content exceeds height
+        overflowY: "auto",
         height: "calc(100vh - 80px)",
+
+        // Custom Scrollbar
+        "&::-webkit-scrollbar": {
+          width: "8px",
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: "#f1f1f1",
+          borderRadius: "8px",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "#888",
+          borderRadius: "8px",
+        },
+        "&::-webkit-scrollbar-thumb:hover": {
+          backgroundColor: "#555",
+        },
+        scrollbarWidth: "thin", // Firefox
+        scrollbarColor: "#888 #f1f1f1", // Firefox
       }}
     >
       {/* Loading state with skeletons */}
       {isLoading && (
         <Masonry
-          breakpointCols={breakpointColumnsObj}
+          breakpointCols={currentBreakpointColumns} // Use the dynamic breakpoints
           className="my-masonry-grid"
           columnClassName="my-masonry-grid_column"
         >
           {Array.from(new Array(6)).map((_, index) => (
-            <Box
-              key={`skeleton-${index}`}
-              sx={{ width: "100%" /* Skeletons take full column width */ }}
-            >
+            <Box key={`skeleton-${index}`} sx={{ width: "100%" }}>
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={Math.random() * (280 - 180) + 180} // Random height for skeleton to simulate masonry
+                height={Math.random() * (280 - 180) + 180}
                 sx={{ borderRadius: 2 }}
               />
               <Skeleton width="60%" sx={{ mt: 1 }} />
@@ -85,16 +112,13 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
       {/* Loaded images */}
       {!isLoading && items.length > 0 && (
         <Masonry
-          breakpointCols={breakpointColumnsObj}
+          breakpointCols={currentBreakpointColumns} // Use the dynamic breakpoints
           className="my-masonry-grid"
           columnClassName="my-masonry-grid_column"
         >
           {items.map((item) => (
             <Box
               key={item.id || item.tokenId}
-              // The width is controlled by Masonry's column structure,
-              // so remove `width: "30%", minWidth: "200px"` from here.
-              // Just ensure the content (image + text) fills the column.
               sx={{ cursor: "pointer", mb: 2 }} // mb adds vertical spacing between items within a column
               onClick={() => onCardClick(item)}
             >
@@ -108,12 +132,13 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
                   display: "block", // Removes extra space below image
                 }}
               />
-              <Typography variant="body2" sx={{ mt: 1, fontWeight: "bold" }}>
+
+              {/* <Typography variant="body2" sx={{ mt: 1, fontWeight: "bold" }}>
                 {item.title || item.name}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
+              </Typography> */}
+              {/* <Typography variant="caption" color="text.secondary">
                 Price: {item.price} XTZ
-              </Typography>
+              </Typography> */}
             </Box>
           ))}
         </Masonry>

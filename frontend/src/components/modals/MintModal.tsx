@@ -62,7 +62,7 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
 
     const formData = new FormData();
     formData.append("file", image!);
-    formData.append("name", title || "Untitled NFT");
+    formData.append("name", title || "");
     formData.append("description", trimmedDescription);
     formData.append("price", price);
 

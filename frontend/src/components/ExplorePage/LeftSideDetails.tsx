@@ -8,7 +8,9 @@ import {
   Button,
   Stack,
   InputBase,
+  Theme, // Import Theme for SxProps
 } from "@mui/material";
+import { SxProps } from "@mui/system"; // Import SxProps
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import ReplyIcon from "@mui/icons-material/Reply";
@@ -44,9 +46,14 @@ interface Comment {
 interface LeftSideDetailProps {
   data: any;
   onClose: () => void;
+  sx?: SxProps<Theme>; // <-- Add sx prop here
 }
 
-const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
+const LeftSideDetail: React.FC<LeftSideDetailProps> = ({
+  data,
+  onClose,
+  sx, // <-- Destructure sx from props
+}) => {
   const { isLoggedIn, user } = useAuth();
 
   // States
@@ -161,8 +168,8 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
   return (
     <Box
       sx={{
-        width: "40%",
-        minWidth: "300px",
+        width: "45%", // This will be overridden by the prop if provided
+        minWidth: "400px",
         padding: 2,
         borderRight: "1px solid #ddd",
         backgroundColor: "#fff",
@@ -172,6 +179,7 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
         flexDirection: "column",
         height: "100%",
         maxHeight: "calc(100vh - 100px)",
+        ...sx, // <-- Spread the incoming sx prop here. It will merge/override
       }}
     >
       {/* Close button */}
@@ -184,16 +192,51 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({ data, onClose }) => {
       </IconButton>
 
       {/* NFT Title */}
-      <Typography variant="h6" sx={{ mb: 1 }}>
-        {data?.metadata?.name || "NFT Detail"}
+      <Typography variant="h6" sx={{ mb: 1, height: "35px" }}>
+        {data?.metadata?.name || ""}
       </Typography>
 
       {/* NFT Image */}
-      <Box sx={{ mb: 2 }}>
+      <Box
+        sx={{
+          mb: 2,
+          position: "relative", // Needed for absolute positioning of the background
+          borderRadius: "10px",
+          width: "100%",
+          maxWidth: "400px",
+          maxHeight: "500px",
+          overflow: "hidden", // To ensure the blurred edges don't spill out
+        }}
+      >
+        {/* Blurred Background Layer */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${data?.metadata?.image})`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center center",
+            backgroundSize: "cover",
+            filter: "blur(2.5px)",
+            zIndex: 0,
+          }}
+        />
+
+        {/* Main Image Layer (on top) */}
         <img
           src={data?.metadata?.image}
           alt={data?.metadata?.name}
-          style={{ width: "100%", borderRadius: 8 }}
+          style={{
+            width: "100%",
+            borderRadius: "10px",
+            maxHeight: "500px",
+            objectFit: "contain",
+            position: "relative",
+            zIndex: 1,
+          }}
         />
       </Box>
 
