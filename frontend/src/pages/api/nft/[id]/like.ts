@@ -4,7 +4,6 @@ import { connectToDatabase } from "@/lib/db";
 import { NFT } from "@/models/NFT";
 import { User } from "@/models/User";
 import { Types } from "mongoose";
-import { v4 as uuidv4 } from "uuid";
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,39 +17,39 @@ export default async function handler(
     await connectToDatabase();
 
     const { id: nftId } = req.query;
-    const { text, userId } = req.body;
+    const { userId } = req.body;
 
-    if (!text || !userId) {
-      return res.status(400).json({ message: "Missing text or userId" });
+    if (!userId) {
+      return res.status(400).json({ message: "Missing userId" });
     }
 
     const nft = await NFT.findById(nftId);
     if (!nft) return res.status(404).json({ message: "NFT not found" });
 
-    const userDoc = await User.findById(userId).select("username");
-    if (!userDoc) return res.status(404).json({ message: "User not found" });
+    const userExists = await User.findById(userId);
+    if (!userExists) return res.status(404).json({ message: "User not found" });
 
-    const newComment = {
-      id: uuidv4(),
-      user: new Types.ObjectId(userId),
-      username: userDoc.username,
-      text,
-      replies: [],
-    };
+    const alreadyLiked = nft.likes?.some(
+      (like: any) => like.toString() === userId
+    );
 
-    nft.comments.push(newComment);
+    if (alreadyLiked) {
+      // Unlike
+      nft.likes = nft.likes?.filter((like: any) => like.toString() !== userId);
+    } else {
+      // Like
+      nft.likes?.push(new Types.ObjectId(userId));
+    }
+
     await nft.save();
 
-    const populatedNFT = await NFT.findById(nftId)
-      .populate("comments.user", "username name")
-      .populate("comments.replies.user", "username name");
-
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
-      comments: populatedNFT?.comments,
+      likesCount: nft.likes?.length || 0,
+      liked: !alreadyLiked,
     });
   } catch (error: any) {
-    console.error("Add Comment Error:", error);
+    console.error("Like Error:", error);
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });

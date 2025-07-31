@@ -5,7 +5,8 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { jwtDecode } from "jwt-decode";
 
-interface User {
+export interface User {
+  _id: string;
   id: string;
   username: string;
   email: string;

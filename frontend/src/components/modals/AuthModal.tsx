@@ -30,7 +30,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 }) => {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
-  const { login, register } = useAuth();
+  const { login, register, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     username: "",
@@ -38,21 +38,20 @@ const AuthModal: React.FC<AuthModalProps> = ({
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-
-    // clear error on typing
-    if (error) {
-      setError("");
-    }
+    if (error) setError("");
+    if (success) setSuccess("");
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setLocalLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       if (isLogin) {
@@ -61,29 +60,33 @@ const AuthModal: React.FC<AuthModalProps> = ({
       } else {
         await register({
           username: formData.username,
-          name: formData.name,
           email: formData.email,
           password: formData.password,
-          walletAddress: address || "", // now directly from wagmi
+          name: formData.name,
+          walletAddress: address || "",
         });
 
-        // Reset password field and switch to login
+        setSuccess("Registration successful! You are now logged in.");
         setFormData({
-          ...formData,
+          username: "",
+          name: "",
+          email: "",
           password: "",
         });
-        setIsLogin(true);
+        onClose(); // Close modal after successful registration
       }
     } catch (err: any) {
       setError(err.message || "Authentication failed");
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
     }
   };
 
   const switchAuthMode = () => {
     setIsLogin(!isLogin);
-    setFormData({ ...formData, password: "" }); // clear password
+    setFormData({ ...formData, password: "" });
+    setError("");
+    setSuccess("");
   };
 
   if (!open) return null;
@@ -109,27 +112,33 @@ const AuthModal: React.FC<AuthModalProps> = ({
             </Alert>
           )}
 
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
+
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {!isLogin && (
-              <StyledTextField
-                label="Username"
-                name="username"
-                value={formData.username}
-                fullWidth
-                margin="dense"
-                onChange={handleChange}
-                required
-              />
-            )}
-            {!isLogin && (
-              <StyledTextField
-                label="Name"
-                name="name"
-                value={formData.name}
-                fullWidth
-                margin="dense"
-                onChange={handleChange}
-              />
+              <>
+                <StyledTextField
+                  label="Username"
+                  name="username"
+                  value={formData.username}
+                  fullWidth
+                  margin="dense"
+                  onChange={handleChange}
+                  required
+                />
+                <StyledTextField
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  fullWidth
+                  margin="dense"
+                  onChange={handleChange}
+                />
+              </>
             )}
             <StyledTextField
               label="Email"
@@ -152,12 +161,11 @@ const AuthModal: React.FC<AuthModalProps> = ({
               required
             />
 
-            {/* Wallet connect logic */}
             {!isConnected ? (
               <SecondaryButton
                 sx={{ mt: 2, fontWeight: 600 }}
                 onClick={openConnectModal}
-                disabled={loading}
+                disabled={authLoading || localLoading}
               >
                 Connect Wallet
               </SecondaryButton>
@@ -178,9 +186,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
             <PrimaryButton
               sx={{ mt: 2, fontWeight: 600 }}
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={authLoading || localLoading}
             >
-              {loading ? (
+              {authLoading || localLoading ? (
                 <CircularProgress size={24} sx={{ color: "white" }} />
               ) : isLogin ? (
                 "Login"

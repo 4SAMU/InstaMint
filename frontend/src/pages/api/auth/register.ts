@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { hashPassword } from "@/lib/auth";
 import { User } from "@/models/User";
 import { connectToDatabase } from "@/lib/db";
+import jwt from "jsonwebtoken";
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,25 +15,34 @@ export default async function handler(
   const { username, email, password, name, walletAddress } = req.body;
 
   if (!email || !password || !username) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({
+      message: "Missing required fields",
+      details: {
+        email: !email ? "Email is required" : undefined,
+        password: !password ? "Password is required" : undefined,
+        username: !username ? "Username is required" : undefined,
+      },
+    });
   }
 
   try {
-    await connectToDatabase(); // connect once per request
+    await connectToDatabase();
 
-    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { username }],
     });
 
     if (existingUser) {
-      return res.status(422).json({ message: "User already exists" });
+      return res.status(422).json({
+        message: "User already exists",
+        exists: {
+          email: existingUser.email === email,
+          username: existingUser.username === username,
+        },
+      });
     }
 
-    // Hash password
     const hashedPassword = await hashPassword(password);
-
-    // Create new user
     const newUser = await User.create({
       username,
       email,
@@ -41,8 +51,14 @@ export default async function handler(
       walletAddress: walletAddress || null,
     });
 
+    // Generate JWT token
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, {
+      expiresIn: "7d",
+    });
+
     return res.status(201).json({
-      message: "User created",
+      message: "User created successfully",
+      token,
       user: {
         id: newUser._id,
         username: newUser.username,

@@ -29,7 +29,6 @@ interface InstaMintContextValue {
   instaMintNFTitems: InstaMintNFTItem[];
 }
 
-// context is created with undefined so we can detect missing provider
 const InstaMintContext = createContext<InstaMintContextValue | undefined>(
   undefined
 );
@@ -66,10 +65,22 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
           signer
         );
 
-        const listed = await contract.fetchItemsListed();
+        let listed: any[] = [];
+        try {
+          const result = await contract.fetchItemsListed();
+          listed = Array.isArray(result) ? result : [];
+        } catch (err) {
+          console.warn("fetchItemsListed returned nothing:", err);
+          listed = [];
+        }
+
+        if (listed.length === 0) {
+          if (isMounted) setInstaMintNFTItems([]);
+          return;
+        }
 
         const enriched = await Promise.all(
-          listed.map(async (i: any) => {
+          listed.map(async (i: any): Promise<InstaMintNFTItem | undefined> => {
             try {
               const tokenURI = await contract.tokenURI(i.tokenId);
 
@@ -99,7 +110,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
                   name: metadata.name,
                   description: metadata.description,
                   image: imageURL,
-                  price: metadata.price,
+                  price: metadata.price ?? undefined,
                   attributes: metadata.attributes || [],
                 },
               };
@@ -113,7 +124,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
           })
         );
 
-        const validItems = enriched.filter(
+        const validItems: InstaMintNFTItem[] = enriched.filter(
           (item): item is InstaMintNFTItem => item !== undefined
         );
 
