@@ -26,7 +26,10 @@ export interface InstaMintNFTItem {
 }
 
 interface InstaMintContextValue {
-  instaMintNFTitems: InstaMintNFTItem[];
+  marketNFTs: InstaMintNFTItem[];
+  myNFTs: InstaMintNFTItem[];
+  fetchMarketNFTs: () => Promise<void>;
+  fetchMyNFTs: () => Promise<void>;
 }
 
 const InstaMintContext = createContext<InstaMintContextValue | undefined>(
@@ -45,106 +48,113 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const { isConnected } = useAccount();
-  const [instaMintNFTitems, setInstaMintNFTItems] = useState<
-    InstaMintNFTItem[]
-  >([]);
+  const [marketNFTs, setMarketNFTs] = useState<InstaMintNFTItem[]>([]);
+  const [myNFTs, setMyNFTs] = useState<InstaMintNFTItem[]>([]);
 
+  // ---- Helper to connect contract ----
+  const getContract = async () => {
+    if (typeof window === "undefined" || !window.ethereum) return null;
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    return new ethers.Contract(ContractAddress, InstaMintABI, signer);
+  };
+
+  // ---- Helper to enrich NFT metadata ----
+  const enrichItems = async (items: any[], contract: any) => {
+    return Promise.all(
+      items.map(async (i) => {
+        try {
+          const tokenURI = await contract.tokenURI(i.tokenId);
+          const gatewayURI = tokenURI.startsWith("ipfs://")
+            ? `https://ipfs.io/ipfs/${tokenURI.slice(7)}`
+            : tokenURI;
+
+          const response = await fetch(gatewayURI);
+          if (!response.ok) throw new Error("Failed to fetch metadata");
+
+          const metadata = await response.json();
+          const imageURL = metadata.image?.startsWith("ipfs://")
+            ? `https://ipfs.io/ipfs/${metadata.image.slice(7)}`
+            : metadata.image;
+
+          return {
+            tokenId: Number(i.tokenId),
+            tokenURI,
+            seller: i.seller,
+            owner: i.owner,
+            metadata: {
+              name: metadata.name ?? "Unnamed NFT",
+              description: metadata.description ?? "",
+              image: imageURL ?? "",
+              price: i.price ? ethers.formatEther(i.price) : undefined,
+              attributes: metadata.attributes || [],
+            },
+          } as InstaMintNFTItem;
+        } catch (err) {
+          console.error(`Error processing token ${i.tokenId}:`, err);
+          return null;
+        }
+      })
+    ).then((items) =>
+      items.filter((item): item is InstaMintNFTItem => item !== null)
+    );
+  };
+
+  // ---- Fetch Market NFTs ----
+  const fetchMarketNFTs = async () => {
+    try {
+      if (!isConnected) return;
+      const contract = await getContract();
+      if (!contract) return;
+
+      const marketItems = await contract.fetchMarketItems();
+      const enrichedMarket = await enrichItems(marketItems, contract);
+      setMarketNFTs(enrichedMarket);
+    } catch (err) {
+      console.error("Error loading Market NFTs:", err);
+    }
+  };
+
+  // ---- Fetch My NFTs ----
+  const fetchMyNFTs = async () => {
+    try {
+      if (!isConnected) return;
+      const contract = await getContract();
+      if (!contract) return;
+
+      const ownedItems = await contract.fetchMyNFTs();
+      const enrichedOwned = await enrichItems(ownedItems, contract);
+      setMyNFTs(enrichedOwned);
+    } catch (err) {
+      console.error("Error loading My NFTs:", err);
+    }
+  };
+
+  // ---- Load on mount & refresh every 15s ----
   useEffect(() => {
     let isMounted = true;
 
-    async function loadNFTs() {
-      try {
-        if (!isConnected) return;
-        if (typeof window === "undefined" || !window.ethereum) return;
-
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const contract = new ethers.Contract(
-          ContractAddress,
-          InstaMintABI,
-          signer
-        );
-
-        let listed: any[] = [];
-        try {
-          const result = await contract.fetchItemsListed();
-          listed = Array.isArray(result) ? result : [];
-        } catch (err) {
-          console.warn("fetchItemsListed returned nothing:", err);
-          listed = [];
-        }
-
-        if (listed.length === 0) {
-          if (isMounted) setInstaMintNFTItems([]);
-          return;
-        }
-
-        const enriched = await Promise.all(
-          listed.map(async (i: any): Promise<InstaMintNFTItem | undefined> => {
-            try {
-              const tokenURI = await contract.tokenURI(i.tokenId);
-
-              if (!tokenURI.startsWith("ipfs://")) {
-                console.log(
-                  `Skipping token ${i.tokenId} (non-IPFS URI: ${tokenURI})`
-                );
-                return undefined;
-              }
-
-              const gatewayURI = `https://ipfs.io/ipfs/${tokenURI.slice(7)}`;
-              const response = await fetch(gatewayURI);
-              if (!response.ok) throw new Error("Failed to fetch metadata");
-
-              const metadata = await response.json();
-
-              const imageURL = metadata.image?.startsWith("ipfs://")
-                ? `https://ipfs.io/ipfs/${metadata.image.slice(7)}`
-                : metadata.image;
-
-              return {
-                tokenId: Number(i.tokenId),
-                tokenURI,
-                seller: i.seller,
-                owner: i.owner,
-                metadata: {
-                  name: metadata.name,
-                  description: metadata.description,
-                  image: imageURL,
-                  price: metadata.price ?? undefined,
-                  attributes: metadata.attributes || [],
-                },
-              };
-            } catch (err) {
-              console.error(
-                `Error processing token ${i.tokenId}:`,
-                (err as Error).message
-              );
-              return undefined;
-            }
-          })
-        );
-
-        const validItems: InstaMintNFTItem[] = enriched.filter(
-          (item): item is InstaMintNFTItem => item !== undefined
-        );
-
-        if (isMounted) setInstaMintNFTItems(validItems);
-      } catch (err) {
-        console.error("Error loading NFTs:", err);
-      }
-    }
-
-    loadNFTs(); // initial load
-    const interval = setInterval(loadNFTs, 15000); // refresh every 15s
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
+    const loadAll = async () => {
+      if (!isMounted) return;
+      await fetchMarketNFTs();
+      await fetchMyNFTs();
     };
+
+    if (isConnected) {
+      loadAll();
+      const interval = setInterval(loadAll, 15000);
+      return () => {
+        isMounted = false;
+        clearInterval(interval);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected]);
 
   return (
-    <InstaMintContext.Provider value={{ instaMintNFTitems }}>
+    <InstaMintContext.Provider
+      value={{ marketNFTs, myNFTs, fetchMarketNFTs, fetchMyNFTs }}
+    >
       {children}
     </InstaMintContext.Provider>
   );

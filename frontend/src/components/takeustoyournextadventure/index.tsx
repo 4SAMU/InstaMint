@@ -63,7 +63,12 @@ const TakeUsToYourNextAdventure = () => {
           Try Out now!
         </SecondaryButton>
       </SectionWrapper>
-      {isMintOpen && <MintModal onClose={() => setMintOpen(false)} />}
+      {isMintOpen && (
+        <MintModal
+          onClose={() => setMintOpen(false)}
+          isMintModalOpen={isMintOpen}
+        />
+      )}
     </>
   );
 };

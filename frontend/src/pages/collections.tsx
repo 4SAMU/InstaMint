@@ -10,7 +10,7 @@ import CircularProgress from "@mui/material/CircularProgress"; // Import Circula
 import { Box, Skeleton, Typography } from "@mui/material";
 
 const Collections = () => {
-  const { instaMintNFTitems } = useInstaMint();
+  const { marketNFTs } = useInstaMint();
   const [selectedNFT, setSelectedNFT] = useState<any | null>(null);
   const [isLoadingNFTDetail, setIsLoadingNFTDetail] = useState(false); // Renamed loading state for clarity
 
@@ -38,7 +38,7 @@ const Collections = () => {
     // 2. If backend fetch failed or data is incomplete, fetch from IPFS
     if (!nftDetails || !nftDetails.metadata || !nftDetails.metadata.image) {
       try {
-        const fullNftFromContext = instaMintNFTitems.find(
+        const fullNftFromContext = marketNFTs.find(
           (nft) => nft.tokenId === item.id
         );
 
@@ -113,7 +113,7 @@ const Collections = () => {
     setSelectedNFT(null);
   };
 
-  const gridItems = instaMintNFTitems.map((nft) => ({
+  const gridItems = marketNFTs.map((nft) => ({
     id: nft.tokenId,
     title: nft.metadata?.name || "",
     image: nft.metadata?.image,

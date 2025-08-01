@@ -38,11 +38,11 @@ const Navbar = () => {
         </Box>
 
         <Box className="buttons">
-          <TextButton onClick={() => router.push("/explore")}>
+          <TextButton onClick={() => router.push("/collections")}>
             Explore
           </TextButton>
           <TextButton onClick={() => setMintOpen(true)}>Mint</TextButton>
-          <TextButton onClick={() => router.push("/collections")}>
+          <TextButton onClick={() => router.push("/my-collections")}>
             My Collections
           </TextButton>
 
