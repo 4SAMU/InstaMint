@@ -115,6 +115,35 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
       return;
     }
 
+    // ✅ Pre-check balance before uploading/minting
+    try {
+      const signer = await getSigner();
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const address = await signer.getAddress();
+      const balance = await provider.getBalance(address);
+
+      const contract = new ethers.Contract(
+        ContractAddress,
+        InstaMintABI,
+        signer
+      );
+      const listingFeeWei = await contract.getListingPrice();
+      const priceInWei = ethers.parseEther(price);
+
+      const estimatedCost = listingFeeWei + priceInWei;
+
+      if (balance < estimatedCost) {
+        toast.error(
+          "You don’t have enough balance to cover the price and gas. Please top up and try again."
+        );
+        return;
+      }
+    } catch (checkErr) {
+      console.log("Balance check error:", checkErr);
+      toast.error("Could not verify wallet balance. Please try again.");
+      return;
+    }
+
     setIsUploading(true);
     setUploadStep("Uploading to IPFS...");
     try {
@@ -155,17 +184,24 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
       toast.success(`NFT minted! Token ID: ${tokenId}`);
       onClose();
     } catch (err: any) {
+      const errorMessage = err?.message || "Mint failed";
+
       if (
         err.code === 4001 ||
-        err.message?.toLowerCase().includes("user denied") ||
-        err.message?.toLowerCase().includes("user rejected action")
+        errorMessage.toLowerCase().includes("user denied") ||
+        errorMessage.toLowerCase().includes("user rejected action")
       ) {
         toast("You cancelled the transaction", { icon: "❌" });
         setRejected(true);
+      } else if (errorMessage.includes("missing revert data")) {
+        toast.error(
+          "Transaction failed. Likely due to low balance. Please top up and try again."
+        );
       } else {
-        toast.error(err.message ?? "Mint failed");
+        toast.error(errorMessage);
       }
-      console.error("Error:", err);
+
+      console.log("Error:", err);
     } finally {
       setIsUploading(false);
       setUploadStep("Please wait...");
