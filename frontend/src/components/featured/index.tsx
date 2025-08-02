@@ -1,6 +1,7 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
 import { OutlinedButton, SectionWrapper } from "@/styles/common-styles";
-import { Box } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import EastIcon from "@mui/icons-material/East";
 import { FeaturedCards } from "./style";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -9,6 +10,28 @@ import { useRouter } from "next/router";
 
 const FeaturedNFTS = () => {
   const router = useRouter();
+  const [nfts, setNfts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNFTs = async () => {
+      try {
+        const res = await fetch("/api/nft");
+        const data = await res.json();
+        if (data.success && data.nfts) {
+          // Show first 4 NFTs
+          setNfts(data.nfts.slice(0, 4));
+        }
+      } catch (err) {
+        console.error("Error fetching NFTs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNFTs();
+  }, []);
+
   return (
     <SectionWrapper
       sx={{
@@ -23,21 +46,17 @@ const FeaturedNFTS = () => {
           padding: "0px 8% 80px 8%",
           alignItems: "center",
         },
-        ".header": {
+      }}
+    >
+      <Box
+        className="header"
+        sx={{
           display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
           gap: "15px",
-        },
-        ".title": {
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
-      <Box className="header">
+        }}
+      >
         <Box className="title">
           <h2>Featured Collectibles</h2>
           <p style={{ marginTop: "5px" }}>
@@ -50,87 +69,53 @@ const FeaturedNFTS = () => {
           <EastIcon />
         </OutlinedButton>
       </Box>
-      <FeaturedCards>
-        <Box className="the_card">
-          <Box className="image">
-            {/* <img src="" alt="" /> */}
-            <div className="overlay">
-              <span className="likes_count">
-                <FavoriteBorderIcon /> 23
-              </span>
-              <span className="comments_count">
-                <ChatBubbleOutlineOutlinedIcon /> 10
-              </span>
-            </div>
-          </Box>
-          <Box className="content">
-            <span className="title">Visited Bahamas</span>
-            <span className="description">
-              Enjoyed the sun kisses, wanna go back there fr
-            </span>
-          </Box>
-        </Box>
 
-        <Box className="the_card">
-          <Box className="image">
-            {/* <img src="" alt="" /> */}
-            <div className="overlay">
-              <span className="likes_count">
-                <FavoriteBorderIcon /> 23
-              </span>
-              <span className="comments_count">
-                <ChatBubbleOutlineOutlinedIcon /> 10
-              </span>
-            </div>
-          </Box>
-          <Box className="content">
-            <span className="title">Visited Bahamas</span>
-            <span className="description">
-              Enjoyed the sun kisses, wanna go back there fr
-            </span>
-          </Box>
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          <CircularProgress />
         </Box>
-
-        <Box className="the_card">
-          <Box className="image">
-            {/* <img src="" alt="" /> */}
-            <div className="overlay">
-              <span className="likes_count">
-                <FavoriteBorderIcon /> 23
-              </span>
-              <span className="comments_count">
-                <ChatBubbleOutlineOutlinedIcon /> 10
-              </span>
-            </div>
-          </Box>
-          <Box className="content">
-            <span className="title">Visited Bahamas</span>
-            <span className="description">
-              Enjoyed the sun kisses, wanna go back there fr
-            </span>
-          </Box>
-        </Box>
-
-        <Box className="the_card">
-          <Box className="image">
-            {/* <img src="" alt="" /> */}
-            <div className="overlay">
-              <span className="likes_count">
-                <FavoriteBorderIcon /> 23
-              </span>
-              <span className="comments_count">
-                <ChatBubbleOutlineOutlinedIcon /> 10
-              </span>
-            </div>
-          </Box>
-          <Box className="content">
-            <span className="title">Visited Bahamas</span>
-            <span className="description">
-              Enjoyed the sun kisses, wanna go back there fr
-            </span>
-          </Box>
-        </Box>
-      </FeaturedCards>
+      ) : (
+        <FeaturedCards>
+          {nfts.length > 0 ? (
+            nfts.map((nft) => (
+              <Box className="the_card" key={nft._id}>
+                <Box className="image">
+                  <img
+                    src={nft.metadata?.image || "/placeholder.png"}
+                    alt={nft.metadata?.name || "NFT"}
+                  />
+                  <div className="overlay">
+                    <span className="likes_count">
+                      <FavoriteBorderIcon /> {nft.likes?.length || 0}
+                    </span>
+                    <span className="comments_count">
+                      <ChatBubbleOutlineOutlinedIcon />{" "}
+                      {nft.comments?.length || 0}
+                    </span>
+                  </div>
+                </Box>
+                <Box className="content">
+                  <span className="title">{nft.metadata?.name || ""}</span>
+                  <span
+                    className="description"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {nft.metadata?.description || ""}
+                  </span>
+                </Box>
+              </Box>
+            ))
+          ) : (
+            <Typography sx={{ mt: 4 }}>No featured NFTs available</Typography>
+          )}
+        </FeaturedCards>
+      )}
     </SectionWrapper>
   );
 };

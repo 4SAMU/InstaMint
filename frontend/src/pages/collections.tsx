@@ -24,7 +24,7 @@ const Collections = () => {
       if (res.ok) {
         const data = await res.json();
         nftDetails = data.nft;
-        console.log("Fetched from backend:", nftDetails);
+        // console.log("Fetched from backend:", nftDetails);
       } else {
         console.warn(
           `Backend fetch failed for token ID ${item.id}: ${res.status}. Attempting IPFS fallback.`

@@ -54,6 +54,7 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({
   onClose,
   sx, // <-- Destructure sx from props
 }) => {
+  console.log(data);
   const { isLoggedIn, user } = useAuth();
 
   // States

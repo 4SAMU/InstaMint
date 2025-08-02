@@ -23,7 +23,7 @@ A decentralized NFT-powered platform where:
   Upload photos or memories and mint them on-chain with one tap. No crypto expertise required.
 
 - 💸 **Earn XP + Royalties**  
-  Gain XP for every reaction. Earn ETH each time your content is sold or resold.
+  Gain XP for every reaction. Earn XTZ each time your content is sold or resold.
 
 - 🌍 **On Etherlink**  
   Low fees, instant finality, and environmentally-friendly blockchain powered by Tezos.
@@ -46,7 +46,7 @@ The heart of InstaMint is a Solidity smart contract built with OpenZeppelin and 
 - **Symbol:** `INSTA`
 - **Standard:** ERC-721
 - **Network:** Etherlink Testnet
-- **Listing Fee:** Default is `0.0001 ETH` (updatable by owner)
+- **Listing Fee:** Default is `0.0001 XTZ` (updatable by owner)
 
 ### 🔐 Core Capabilities
 
@@ -171,25 +171,13 @@ getListingPrice()
 > Visited Bahamas – _Enjoyed the sun kisses, wanna go back there fr_  
 > 🖼️ NFT ID: 5000  
 > ❤️ Reactions: 12k  
-> 💰 Value: 12 ETH
+> 💰 Value: 12 XTZ
 
 ---
 
 ## 📢 Community & Support
 
 Explore, mint, and connect with others through our growing community:
-
-- [Twitter](#)
-- [Instagram](#)
-- [Discord](#)
-
-For help, check our:
-
-- [FAQ](#)
-- [Creator Docs](#)
-- [Support Center](#)
-
----
 
 ## 📄 License
 
