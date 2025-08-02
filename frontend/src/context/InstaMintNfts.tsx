@@ -52,11 +52,19 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
   const [myNFTs, setMyNFTs] = useState<InstaMintNFTItem[]>([]);
 
   // ---- Helper to connect contract ----
+  const etherlinkGhostnetRpc = "https://node.ghostnet.etherlink.com";
+  const fallbackProvider = new ethers.JsonRpcProvider(etherlinkGhostnetRpc);
+
   const getContract = async () => {
-    if (typeof window === "undefined" || !window.ethereum) return null;
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    return new ethers.Contract(ContractAddress, InstaMintABI, signer);
+    if (typeof window !== "undefined" && window.ethereum) {
+      const browserProvider = new ethers.BrowserProvider(window.ethereum);
+
+      const signer = await browserProvider.getSigner();
+      return new ethers.Contract(ContractAddress, InstaMintABI, signer);
+    }
+
+    // fallback read-only
+    return new ethers.Contract(ContractAddress, InstaMintABI, fallbackProvider);
   };
 
   // ---- Helper to enrich NFT metadata ----
@@ -109,7 +117,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
 
       const marketItems = await contract.fetchMarketItems();
       const enrichedMarket = await enrichItems(marketItems, contract);
-      setMarketNFTs(enrichedMarket);
+      setMarketNFTs(enrichedMarket.reverse());
     } catch (err) {
       console.error("Error loading Market NFTs:", err);
     }
@@ -124,7 +132,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
 
       const ownedItems = await contract.fetchMyNFTs();
       const enrichedOwned = await enrichItems(ownedItems, contract);
-      setMyNFTs(enrichedOwned);
+      setMyNFTs(enrichedOwned.reverse());
     } catch (err) {
       console.error("Error loading My NFTs:", err);
     }

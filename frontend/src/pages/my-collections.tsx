@@ -6,79 +6,95 @@ import {
   SecondaryButton,
   SectionWrapper,
 } from "@/styles/common-styles";
-import LeftSideDetail from "@/components/ExplorePage/LeftSideDetails";
-import RightSideGrid from "@/components/ExplorePage/RightSideCardsGrid";
 import { useInstaMint } from "@/context/InstaMintNfts";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Box, Skeleton, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import MintModal from "@/components/modals/MintModal";
+import ResellModal from "@/components/modals/ResellModal"; // 👈 import modal
+import Masonry from "react-masonry-css";
+import { useAccount } from "wagmi";
+import toast from "react-hot-toast";
+import { ethers } from "ethers";
+import { ContractAddress } from "@/config/contract-address";
+import { InstaMintABI } from "@/config/instamint-abi";
 
 const MyCollections = () => {
   const router = useRouter();
-  const { myNFTs, fetchMyNFTs } = useInstaMint(); // your NFTs
-  const [selectedNFT, setSelectedNFT] = useState<any | null>(null);
-  const [isLoadingNFTDetail, setIsLoadingNFTDetail] = useState(false);
+  const { address: currentAddress } = useAccount();
+  const { myNFTs, fetchMarketNFTs, fetchMyNFTs } = useInstaMint();
+
   const [isMintOpen, setMintOpen] = useState(false);
-
-  const handleCardClick = async (item: any) => {
-    setIsLoadingNFTDetail(true);
-    let nftDetails = null;
-
-    try {
-      const res = await fetch(`/api/nft/${item.id}`);
-      if (res.ok) {
-        const data = await res.json();
-        nftDetails = data.nft;
-      }
-    } catch (err: any) {
-      console.error("Backend fetch error:", err.message || err);
-    }
-
-    if (!nftDetails || !nftDetails.metadata?.image) {
-      try {
-        const fullNft = myNFTs.find((nft) => nft.tokenId === item.id);
-        if (fullNft?.tokenURI) {
-          const tokenURI = fullNft.tokenURI;
-          const gatewayURI = `https://ipfs.io/ipfs/${tokenURI.slice(7)}`;
-          const metadataRes = await fetch(gatewayURI);
-
-          if (metadataRes.ok) {
-            const metadata = await metadataRes.json();
-            const imageUrl = metadata.image?.startsWith("ipfs://")
-              ? `https://ipfs.io/ipfs/${metadata.image.slice(7)}`
-              : metadata.image;
-
-            nftDetails = {
-              tokenId: item.id,
-              tokenURI,
-              metadata: {
-                name: metadata.name || "",
-                description: metadata.description || "No description provided.",
-                image: imageUrl,
-                attributes: metadata.attributes || [],
-              },
-            };
-          }
-        }
-      } catch (ipfsErr: any) {
-        console.error("IPFS fetch error:", ipfsErr.message || ipfsErr);
-      }
-    }
-
-    setSelectedNFT(nftDetails);
-    setIsLoadingNFTDetail(false);
-  };
-
-  const handleCloseDetail = () => setSelectedNFT(null);
+  const [resellOpen, setResellOpen] = useState(false); // 👈 modal state
+  const [selectedNFT, setSelectedNFT] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const gridItems = myNFTs.map((nft) => ({
     id: nft.tokenId,
     title: nft.metadata?.name || "",
     image: nft.metadata?.image,
     description: nft.metadata?.description,
-    tokenURI: nft.tokenURI,
+    price: nft.metadata?.price || "N/A",
+    seller: nft.seller,
+    owner: nft.owner,
   }));
+
+  const breakpointColumns = {
+    default: 4,
+    1100: 3,
+    700: 2,
+    500: 1,
+  };
+
+  const getSigner = async () => {
+    if (!window.ethereum) throw new Error("MetaMask not detected");
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    return provider.getSigner();
+  };
+
+  const handleResell = async (newPrice: string) => {
+    if (!selectedNFT) return;
+    setLoading(true);
+
+    try {
+      const signer = await getSigner();
+      const contract = new ethers.Contract(
+        ContractAddress,
+        InstaMintABI,
+        signer
+      );
+
+      const listingPrice = await contract.getListingPrice();
+      const price = ethers.parseUnits(newPrice.toString(), "ether");
+
+      const transaction = await contract.resellToken(selectedNFT.id, price, {
+        value: listingPrice,
+      });
+
+      toast.loading("Resell transaction in progress...");
+      const receipt = await transaction.wait();
+
+      toast.dismiss();
+      if (receipt.status === 1) {
+        toast.success("NFT listed for resale successfully 🎉");
+        await Promise.all([fetchMarketNFTs(), fetchMyNFTs()]);
+      } else {
+        toast.error("Transaction failed. Please try again.");
+      }
+    } catch (error: any) {
+      toast.dismiss();
+      console.error("Sell error:", error);
+
+      if (error?.code === "ACTION_REJECTED" || error?.code === 4001) {
+        toast.error("You rejected the transaction");
+      } else {
+        toast.error(
+          error?.message || "Something went wrong while reselling NFT."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -126,91 +142,124 @@ const MyCollections = () => {
                   Explore NFTs
                 </PrimaryButton>
                 <SecondaryButton onClick={() => setMintOpen(true)}>
-                  mint now
+                  Mint Now
                 </SecondaryButton>
               </Box>
             </Box>
           ) : (
-            <>
-              {selectedNFT ? (
-                <LeftSideDetail
-                  data={selectedNFT}
-                  onClose={handleCloseDetail}
-                  sx={{ width: "350px", flexShrink: 0 }}
-                />
-              ) : isLoadingNFTDetail ? (
-                <Box
-                  sx={{
-                    width: "350px",
-                    flexShrink: 0,
-                    padding: 2,
-                    borderRight: "1px solid #ddd",
-                    backgroundColor: "#fff",
-                    borderRadius: "20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100%",
-                    maxHeight: "calc(100vh - 100px)",
-                  }}
-                >
-                  <Skeleton
-                    variant="rectangular"
-                    width="100%"
-                    height={200}
-                    sx={{ borderRadius: 2, mb: 2 }}
-                  />
-                  <Skeleton width="80%" height={30} sx={{ mb: 1 }} />
-                  <Skeleton width="100%" height={60} sx={{ mb: 2 }} />
-                  <Skeleton width="40%" height={20} sx={{ mb: 2 }} />
-                  <Skeleton variant="text" height={20} sx={{ mb: 1 }} />
-                  <Skeleton variant="text" height={20} sx={{ mb: 1 }} />
-                  <Skeleton
-                    variant="rectangular"
-                    width="100%"
-                    height={50}
-                    sx={{ borderRadius: 2 }}
-                  />
-                </Box>
-              ) : null}
+            <Box
+              sx={{
+                flex: 1,
+                padding: 2,
+                overflowY: "auto",
+                height: "calc(100vh - 80px)",
+              }}
+            >
+              <Masonry
+                breakpointCols={breakpointColumns}
+                className="my-masonry-grid"
+                columnClassName="my-masonry-grid_column"
+              >
+                {gridItems.map((item: any) => (
+                  <Box
+                    key={item.id}
+                    sx={{
+                      cursor: "default",
+                      mb: 2,
+                      position: "relative",
+                      borderRadius: 2,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title || "NFT Image"}
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        display: "block",
+                      }}
+                    />
 
-              <RightSideGrid
-                items={gridItems}
-                onCardClick={handleCardClick}
-                loading={false}
-                isDetailViewOpen={!!selectedNFT || isLoadingNFTDetail}
-              />
+                    {/* Gradient Overlay */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        width: "100%",
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "end",
+                        gap: 1,
+                        height: "50%",
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0))",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: "16px",
+                          fontWeight: 600,
+                          color: "#fff",
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                      <Typography sx={{ color: "#fff", fontWeight: 500 }}>
+                        {item.price} XTZ
+                      </Typography>
 
-              {isLoadingNFTDetail && !selectedNFT && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    zIndex: 100,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    p: 2,
-                    bgcolor: "rgba(255,255,255,0.8)",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <CircularProgress />
-                  <Typography variant="body1" sx={{ mt: 1 }}>
-                    Loading NFT details...
-                  </Typography>
-                </Box>
-              )}
-            </>
+                      {item.owner?.toLowerCase() ===
+                        currentAddress?.toLowerCase() && (
+                        <SecondaryButton
+                          sx={{
+                            mt: 1,
+                            alignSelf: "flex-start",
+                            backgroundColor: "rgba(255,255,255,0.1)",
+                            color: "#fff",
+                            border: "1px solid rgba(255,255,255,0.3)",
+                            ":hover": {
+                              backgroundColor: "rgba(255,255,255,0.2)",
+                            },
+                            ":disabled": {
+                              color: "#fff",
+                            },
+                          }}
+                          onClick={() => {
+                            setSelectedNFT(item);
+                            setResellOpen(true);
+                          }}
+                        >
+                          Resell
+                        </SecondaryButton>
+                      )}
+                    </Box>
+                  </Box>
+                ))}
+              </Masonry>
+            </Box>
           )}
         </SectionWrapper>
       </DefaultLayout>
+
+      {/* Mint Modal */}
       {isMintOpen && (
         <MintModal
           onClose={() => setMintOpen(false)}
           isMintModalOpen={isMintOpen}
+        />
+      )}
+
+      {/* Resell Modal */}
+      {resellOpen && (
+        <ResellModal
+          open={resellOpen}
+          onClose={() => setResellOpen(false)}
+          nft={selectedNFT}
+          onResell={handleResell}
+          loading={loading}
         />
       )}
     </>

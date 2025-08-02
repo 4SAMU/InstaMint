@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { NavbarWrapper } from "./style";
 import { Box } from "@mui/material";
@@ -17,16 +16,15 @@ import { useAccount } from "wagmi";
 
 const Navbar = () => {
   const router = useRouter();
-
   const { isConnected } = useAccount();
   const { startTour, completed } = useAppTour();
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   const [isMintOpen, setMintOpen] = useState(false);
   const [isAuthOpen, setAuthOpen] = useState(false);
 
   const handlePrimaryClick = () => {
-    if (isLoggedIn) return; // Don't open auth modal if already logged in
+    if (isLoggedIn) return;
     setAuthOpen(true);
   };
 
@@ -38,11 +36,24 @@ const Navbar = () => {
         </Box>
 
         <Box className="buttons">
-          <TextButton onClick={() => router.push("/collections")}>
+          <TextButton
+            onClick={() => router.push("/collections")}
+            className={router.pathname === "/collections" ? "active" : ""}
+          >
             Explore
           </TextButton>
-          <TextButton onClick={() => setMintOpen(true)}>Mint</TextButton>
-          <TextButton onClick={() => router.push("/my-collections")}>
+
+          <TextButton
+            onClick={() => setMintOpen(true)}
+            className={isMintOpen ? "active" : ""}
+          >
+            Mint
+          </TextButton>
+
+          <TextButton
+            onClick={() => router.push("/my-collections")}
+            className={router.pathname === "/my-collections" ? "active" : ""}
+          >
             My Collections
           </TextButton>
 

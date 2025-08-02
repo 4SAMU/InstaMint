@@ -120,6 +120,8 @@ const Collections = () => {
     description: nft.metadata?.description,
     price: nft.metadata?.price,
     tokenURI: nft.tokenURI,
+    owner: nft.owner,
+    seller: nft.seller,
   }));
 
   return (
@@ -191,7 +193,7 @@ const Collections = () => {
         }
 
         <RightSideGrid
-          items={gridItems}
+          nfts={gridItems}
           onCardClick={handleCardClick}
           // The loading prop here controls the skeletons for the grid itself.
           // If you want skeletons for the RightSideGrid ONLY when it's first loading ALL items,

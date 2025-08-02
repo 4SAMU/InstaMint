@@ -37,7 +37,6 @@ contract InstaMint is ERC721URIStorage {
         owner = payable(msg.sender);
     }
 
-    /* Updates the listing price of the contract */
     function updateListingPrice(uint _listingPrice) public payable {
         require(
             owner == msg.sender,
@@ -46,12 +45,10 @@ contract InstaMint is ERC721URIStorage {
         listingPrice = _listingPrice;
     }
 
-    /* Returns the listing price of the contract */
     function getListingPrice() public view returns (uint256) {
         return listingPrice;
     }
 
-    /* Mints a token and lists it in the marketplace */
     function createToken(
         string memory tokenURI,
         uint256 price
@@ -90,7 +87,6 @@ contract InstaMint is ERC721URIStorage {
         );
     }
 
-    /* allows someone to resell a token they have purchased */
     function resellToken(uint256 tokenId, uint256 price) public payable {
         require(
             idToMarketItem[tokenId].owner == msg.sender,
@@ -109,25 +105,28 @@ contract InstaMint is ERC721URIStorage {
         _transfer(msg.sender, address(this), tokenId);
     }
 
-    /* Creates the sale of a marketplace item */
-    /* Transfers ownership of the item, as well as funds between parties */
     function createMarketSale(uint256 tokenId) public payable {
         uint price = idToMarketItem[tokenId].price;
         address seller = idToMarketItem[tokenId].seller;
+
+        // 🚫 prevent buying your own NFT
+        require(msg.sender != seller, "You cannot buy your own NFT");
+
         require(
             msg.value == price,
             "Please submit the asking price in order to complete the purchase"
         );
+
         idToMarketItem[tokenId].owner = payable(msg.sender);
         idToMarketItem[tokenId].sold = true;
         idToMarketItem[tokenId].seller = payable(address(0));
         _itemsSold.increment();
+
         _transfer(address(this), msg.sender, tokenId);
         payable(owner).transfer(listingPrice);
         payable(seller).transfer(msg.value);
     }
 
-    /* Returns all unsold market items */
     function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint itemCount = _tokenIds.current();
         uint unsoldItemCount = _tokenIds.current() - _itemsSold.current();
@@ -145,39 +144,35 @@ contract InstaMint is ERC721URIStorage {
         return items;
     }
 
-    /* Returns all items that a user has minted */
     function fetchMyNFTs() public view returns (MarketItem[] memory) {
-    uint totalItemCount = _tokenIds.current();
-    uint itemCount = 0;
-    uint currentIndex = 0;
+        uint totalItemCount = _tokenIds.current();
+        uint itemCount = 0;
+        uint currentIndex = 0;
 
-    for (uint i = 0; i < totalItemCount; i++) {
-        // count NFTs you bought OR you minted
-        if (
-            idToMarketItem[i + 1].owner == msg.sender || 
-            idToMarketItem[i + 1].seller == msg.sender
-        ) {
-            itemCount += 1;
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (
+                idToMarketItem[i + 1].owner == msg.sender || 
+                idToMarketItem[i + 1].seller == msg.sender
+            ) {
+                itemCount += 1;
+            }
         }
+
+        MarketItem[] memory items = new MarketItem[](itemCount);
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (
+                idToMarketItem[i + 1].owner == msg.sender || 
+                idToMarketItem[i + 1].seller == msg.sender
+            ) {
+                uint currentId = i + 1;
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+        return items;
     }
 
-    MarketItem[] memory items = new MarketItem[](itemCount);
-    for (uint i = 0; i < totalItemCount; i++) {
-        if (
-            idToMarketItem[i + 1].owner == msg.sender || 
-            idToMarketItem[i + 1].seller == msg.sender
-        ) {
-            uint currentId = i + 1;
-            MarketItem storage currentItem = idToMarketItem[currentId];
-            items[currentIndex] = currentItem;
-            currentIndex += 1;
-        }
-    }
-    return items;
-}
-
-
-    /* Returns only items a user has listed */
     function fetchItemsListed() public view returns (MarketItem[] memory) {
         uint totalItemCount = _tokenIds.current();
         uint itemCount = 0;

@@ -53,6 +53,11 @@ export const TextButton = styled(Button)(() => ({
     transform: "scaleX(1)",
     transformOrigin: "bottom left",
   },
+
+  "&.active:after": {
+    transform: "scaleX(1)",
+    transformOrigin: "bottom left",
+  },
 }));
 
 export const OutlinedButton = styled(Button)(() => ({

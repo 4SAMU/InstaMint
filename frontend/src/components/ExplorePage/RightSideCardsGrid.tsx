@@ -1,27 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import Masonry from "react-masonry-css";
 import { SecondaryButton } from "@/styles/common-styles";
 import { ethers } from "ethers";
 import { ContractAddress } from "@/config/contract-address";
 import { InstaMintABI } from "@/config/instamint-abi";
 import toast from "react-hot-toast";
+import { useInstaMint } from "@/context/InstaMintNfts";
+import { useAccount } from "wagmi";
 
 interface RightSideGridProps {
-  items: any[];
+  nfts: any[];
   onCardClick: (item: any) => void;
   loading?: boolean;
   isDetailViewOpen: boolean;
 }
 
 const RightSideGrid: React.FC<RightSideGridProps> = ({
-  items,
+  nfts,
   onCardClick,
   loading = false,
   isDetailViewOpen,
 }) => {
+  const { address: currentAddress } = useAccount();
+  const { fetchMarketNFTs, fetchMyNFTs } = useInstaMint();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [buyingId, setBuyingId] = useState<string | null>(null);
+
+  // set first item as active by default
+  useEffect(() => {
+    if (nfts.length > 0 && !activeId) {
+      setActiveId(nfts[0].id || nfts[0].tokenId);
+      onCardClick(nfts[0]);
+    }
+  }, [nfts, activeId, onCardClick]);
 
   const normalBreakpointColumns = {
     default: 4,
@@ -47,9 +61,10 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
     return provider.getSigner();
   };
 
-  //handleBuy nft
+  // handleBuy nft
   const handleBuy = async (e: React.MouseEvent, nft: any) => {
-    e.stopPropagation(); // prevent triggering onCardClick
+    e.stopPropagation();
+    setBuyingId(nft.id); // start loading
 
     try {
       const signer = await getSigner();
@@ -58,17 +73,37 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
         InstaMintABI,
         signer
       );
+
       const price = ethers.parseUnits(nft.price.toString(), "ether");
-      const transaction = await contract.createMarketSale(nft.tokenId, {
+      const transaction = await contract.createMarketSale(nft.id, {
         value: price,
       });
-      const txHash = await transaction.wait();
-      console.log(txHash);
-      toast.success("buying this nft");
-    } catch (error) {
-      console.error(error);
+
+      toast.loading("Transaction in progress...");
+      const receipt = await transaction.wait();
+
+      if (receipt.status === 1) {
+        toast.dismiss();
+        toast.success("NFT purchased successfully 🎉");
+        await Promise.all([fetchMarketNFTs(), fetchMyNFTs()]);
+      } else {
+        toast.dismiss();
+        toast.error("Transaction failed. Please try again.");
+      }
+    } catch (error: any) {
+      toast.dismiss();
+      console.error("Buy error:", error);
+
+      if (error?.code === "ACTION_REJECTED" || error?.code === 4001) {
+        toast.error("You rejected transaction");
+      } else {
+        toast.error(error?.message || "Something went wrong while buying NFT.");
+      }
+    } finally {
+      setBuyingId(null); // stop loading
     }
   };
+
   return (
     <Box
       sx={{
@@ -78,81 +113,109 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
         height: "calc(100vh - 80px)",
       }}
     >
-      {!loading && items.length > 0 && (
+      {!loading && nfts.length > 0 && (
         <Masonry
           breakpointCols={currentBreakpointColumns}
           className="my-masonry-grid"
           columnClassName="my-masonry-grid_column"
         >
-          {items.map((item) => (
-            <Box
-              key={item.id || item.tokenId}
-              sx={{ cursor: "pointer", mb: 2, position: "relative" }}
-              onClick={() => onCardClick(item)}
-              onMouseEnter={() => setHoveredId(item.id || item.tokenId)}
-              onMouseLeave={() => setHoveredId(null)}
-            >
-              <img
-                src={item.image}
-                alt={item.title || item.name || "NFT Image"}
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  borderRadius: 8,
-                  display: "block",
+          {nfts.map((item) => {
+            const itemId = item.id || item.tokenId;
+            const isActive = activeId === itemId;
+            const isHovered = hoveredId === itemId;
+            const isBuying = buyingId === itemId;
+
+            return (
+              <Box
+                key={itemId}
+                sx={{
+                  cursor: isBuying ? "not-allowed" : "pointer",
+                  mb: 2,
+                  position: "relative",
+                  opacity: isBuying ? 0.9 : 1,
                 }}
-              />
-
-              {hoveredId === (item.id || item.tokenId) && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
+                onClick={() => {
+                  if (!isBuying) {
+                    setActiveId(itemId);
+                    onCardClick(item);
+                  }
+                }}
+                onMouseEnter={() => !isBuying && setHoveredId(itemId)}
+                onMouseLeave={() => !isBuying && setHoveredId(null)}
+              >
+                <img
+                  src={item.image}
+                  alt={item.title || item.name || "NFT Image"}
+                  style={{
                     width: "100%",
-                    height: "100%",
-                    background: "rgba(0,0,0,0.5)",
-                    borderRadius: 2,
-                    zIndex: 1,
-                    padding: "10px",
+                    height: "auto",
+                    borderRadius: 8,
+                    display: "block",
                   }}
-                >
-                  <Typography
-                    className="title"
-                    sx={{
-                      fontSize: "16px",
-                      fontWeight: 600,
-                      color: "#fff",
-                    }}
-                  >
-                    {item.title || item.name}
-                  </Typography>
+                />
 
+                {(isHovered || isActive || isBuying) && (
                   <Box
                     sx={{
                       position: "absolute",
-                      bottom: "20px",
-                      left: "10px",
-                      right: "10px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      background: "rgba(0,0,0,0.5)",
+                      borderRadius: 2,
+                      zIndex: 1,
+                      padding: "10px",
                     }}
                   >
-                    <Typography className="price" sx={{ color: "#fff" }}>
-                      Price: {item.price} XTZ
-                    </Typography>
-                    <SecondaryButton
-                      sx={{ width: "max-content" }}
-                      onClick={(e) => handleBuy(e, item)}
+                    <Typography
+                      className="title"
+                      sx={{
+                        fontSize: "16px",
+                        fontWeight: 600,
+                        color: "#fff",
+                      }}
                     >
-                      Buy
-                    </SecondaryButton>
+                      {item.title || item.name}
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: "20px",
+                        left: "10px",
+                        right: "10px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography className="price" sx={{ color: "#fff" }}>
+                        {item.price} XTZ
+                      </Typography>
+                      {item.seller?.toLowerCase() !==
+                        currentAddress?.toLowerCase() && (
+                        <SecondaryButton
+                          sx={{ width: "max-content", position: "relative" }}
+                          onClick={(e) => handleBuy(e, item)}
+                          disabled={isBuying}
+                        >
+                          {isBuying ? (
+                            <CircularProgress
+                              size={20}
+                              sx={{ color: "#fff" }}
+                            />
+                          ) : (
+                            "Buy"
+                          )}
+                        </SecondaryButton>
+                      )}
+                    </Box>
                   </Box>
-                </Box>
-              )}
-            </Box>
-          ))}
+                )}
+              </Box>
+            );
+          })}
         </Masonry>
       )}
     </Box>
