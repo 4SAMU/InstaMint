@@ -101,9 +101,6 @@ const sectionStyles = {
     },
   },
   "@media (max-width: 1535px)": {
-    padding: "80px 15% 0 15%",
-  },
-  "@media (max-width: 899px)": {
     padding: "80px 8% 0 8%",
   },
 
@@ -167,8 +164,8 @@ const HeroSection = () => {
           <h1>Own the Moment. Mint Instantly. Earn Forever.</h1>
           <p>
             InstaMint lets you transform everyday images into valuable digital
-            assets — minted instantly on <i>Etherlink</i>. Start earning
-            whenever fans collect your creations.
+            assets, minted instantly on <i>Etherlink</i>. Start earning whenever
+            fans collect your creations.
           </p>
           <Box className="buttons_wrapper">
             <PrimaryButton

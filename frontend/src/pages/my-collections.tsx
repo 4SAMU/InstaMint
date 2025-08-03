@@ -17,9 +17,13 @@ import toast from "react-hot-toast";
 import { ethers } from "ethers";
 import { ContractAddress } from "@/config/contract-address";
 import { InstaMintABI } from "@/config/instamint-abi";
+import { useAuth } from "@/context/AuthContext";
+import { useXp } from "@/context/XpContext";
 
 const MyCollections = () => {
   const router = useRouter();
+  const { user } = useAuth();
+  const { addXp } = useXp();
   const { address: currentAddress } = useAccount();
   const { myNFTs, fetchMarketNFTs, fetchMyNFTs } = useInstaMint();
 
@@ -77,6 +81,10 @@ const MyCollections = () => {
       if (receipt.status === 1) {
         toast.success("NFT listed for resale successfully 🎉");
         await Promise.all([fetchMarketNFTs(), fetchMyNFTs()]);
+        if (user) {
+          const res = await addXp(user?._id || user?.id, "resell");
+          console.log("add Xp on resell", res);
+        }
       } else {
         toast.error("Transaction failed. Please try again.");
       }

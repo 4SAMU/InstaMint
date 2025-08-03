@@ -30,7 +30,7 @@ export interface INFT extends Document {
   imageUrl?: string;
   txHash?: string;
   comments?: Types.DocumentArray<IComment>;
-  likes?: Types.ObjectId[]; // 👈 new field for likes
+  likes?: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }

@@ -12,6 +12,7 @@ import { myCustomTheme } from "@/utils/theme";
 import { rainbowConfig } from "@/config/rainbowConfig";
 import { Toaster } from "react-hot-toast";
 import { InstaMintProvider } from "@/context/InstaMintNfts";
+import { XpProvider } from "@/context/XpContext";
 
 // Types for page and layout props
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
@@ -33,10 +34,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         <RainbowKitProvider initialChain={2} theme={myCustomTheme}>
           <AuthProvider>
             <TourProvider>
-              <InstaMintProvider>
-                {getLayout(<Component {...pageProps} />)}
-                <Toaster />
-              </InstaMintProvider>
+              <XpProvider>
+                <InstaMintProvider>
+                  {getLayout(<Component {...pageProps} />)}
+                  <Toaster />
+                </InstaMintProvider>
+              </XpProvider>
             </TourProvider>
           </AuthProvider>
         </RainbowKitProvider>

@@ -109,9 +109,6 @@ export const SectionWrapper = styled("section")(() => ({
   },
 
   "@media (max-width: 1535px)": {
-    padding: "0 15%",
-  },
-  "@media (max-width: 899px)": {
     padding: "0 8%",
   },
 }));

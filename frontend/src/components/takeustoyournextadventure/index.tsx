@@ -29,7 +29,7 @@ const TakeUsToYourNextAdventure = () => {
             marginTop: "20px",
           },
           "@media (min-width: 1200px)": {
-            padding: "200px 400px",
+            padding: "200px 8%",
             h1: {
               width: "500px",
             },
@@ -48,7 +48,7 @@ const TakeUsToYourNextAdventure = () => {
         <h1>Your Memories Deserve the Blockchain.</h1>
         <p className="paragraph">
           Whether it&#39;s a candid snap, a travel highlight, or a moment worth
-          remembering — mint it instantly on Etherlink. Share your world, grow
+          remembering - mint it instantly on Etherlink. Share your world, grow
           your audience, and earn with every reaction.
         </p>
         <SecondaryButton

@@ -22,6 +22,7 @@ import toast from "react-hot-toast";
 import { ContractAddress } from "@/config/contract-address";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "./AuthModal";
+import { useXp } from "@/context/XpContext";
 
 interface MintModalProps {
   onClose: () => void;
@@ -32,7 +33,8 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
   const { isConnected } = useAccount();
   const { isLoggedIn } = useAuth();
   const { openConnectModal } = useConnectModal();
-
+  const { user } = useAuth();
+  const { addXp } = useXp();
   const [isAuthOpen, setAuthOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -150,7 +152,11 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
       const tokenURI = await uploadAndMint();
 
       setUploadStep("Minting NFT on blockchain...");
-      const { tokenId } = await mintNFT(tokenURI, price);
+      const { tx, tokenId } = await mintNFT(tokenURI, price);
+      if (tx && user) {
+        const res = await addXp(user?._id || user?.id, "mint");
+        console.log("add Xp on mint", res);
+      }
 
       setUploadStep("Saving metadata...");
       const gatewayURI = `https://ipfs.io/ipfs/${tokenURI.slice(7)}`;

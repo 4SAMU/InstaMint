@@ -30,12 +30,12 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
       selector: ".login-signup",
       content: isLoggedIn
         ? "Connect wallet to Explore the app."
-        : "Start here — register or login and connect your wallet to begin.",
+        : "Start here - register or login and connect your wallet to begin.",
     },
     {
       selector: ".mint-button",
       content:
-        "InstaMint your first memory here — turn it into a digital collectible instantly.",
+        "InstaMint your first memory here - turn it into a digital collectible instantly.",
     },
     {
       selector: ".explore-collection",

@@ -2,7 +2,6 @@
 // context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useRouter } from "next/router";
 import { jwtDecode } from "jwt-decode";
 
 export interface User {
@@ -40,7 +39,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   // On first load, check if token is valid
   useEffect(() => {
@@ -118,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("tokenExpiry");
-    router.push("/login");
+    window.location.reload(); // reloads the whole page
   };
 
   const checkAuth = async () => {

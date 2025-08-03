@@ -9,6 +9,8 @@ import { InstaMintABI } from "@/config/instamint-abi";
 import toast from "react-hot-toast";
 import { useInstaMint } from "@/context/InstaMintNfts";
 import { useAccount } from "wagmi";
+import { useAuth } from "@/context/AuthContext";
+import { useXp } from "@/context/XpContext";
 
 interface RightSideGridProps {
   nfts: any[];
@@ -23,6 +25,8 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
   loading = false,
   isDetailViewOpen,
 }) => {
+  const { user } = useAuth();
+  const { addXp } = useXp();
   const { address: currentAddress } = useAccount();
   const { fetchMarketNFTs, fetchMyNFTs } = useInstaMint();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -86,6 +90,10 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
         toast.dismiss();
         toast.success("NFT purchased successfully 🎉");
         await Promise.all([fetchMarketNFTs(), fetchMyNFTs()]);
+        if (user) {
+          const res = await addXp(user?._id || user?.id, "buy");
+          console.log("add Xp on buy", res);
+        }
       } else {
         toast.dismiss();
         toast.error("Transaction failed. Please try again.");

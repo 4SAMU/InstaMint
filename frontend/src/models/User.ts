@@ -2,12 +2,13 @@
 import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
 export interface IUser extends Document {
-  _id: Types.ObjectId; // 👈 add this line
+  _id: Types.ObjectId;
   username: string;
   name?: string;
   email: string;
   password: string;
   walletAddress?: string | null;
+  xp: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +43,10 @@ const UserSchema: Schema<IUser> = new Schema(
       default: null,
       sparse: true,
       match: [/^0x[a-fA-F0-9]{40}$/, "Invalid wallet address"],
+    },
+    xp: {
+      type: Number,
+      default: 0,
     },
   },
   {

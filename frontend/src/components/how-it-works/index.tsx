@@ -3,8 +3,7 @@ import { SectionWrapper } from "@/styles/common-styles";
 import { Box, useTheme } from "@mui/material";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import TransformIcon from "@mui/icons-material/Transform";
-import PriceCheckIcon from "@mui/icons-material/PriceCheck";
-
+import StarsIcon from "@mui/icons-material/Stars";
 const HowItWorks = () => {
   const theme = useTheme();
 
@@ -15,9 +14,6 @@ const HowItWorks = () => {
         flexDirection: "column",
         gap: "40px",
         "@media (max-width: 1535px)": {
-          padding: "100px 15% 100px 15%",
-        },
-        "@media (max-width: 899px)": {
           padding: "100px 8% 100px 8%",
         },
 
@@ -72,10 +68,10 @@ const HowItWorks = () => {
         <Box className="card_step">
           <AddPhotoAlternateIcon />
           <Box className="content">
-            <h3 className="title">Share Your World</h3>
+            <h3 className="title">Create and Mint</h3>
             <p className="paragraph">
-              Post images like social media, but earn XP for every reaction. The
-              more engagement you get, the more you earn.
+              Share your photos like on social media and mint them instantly as
+              NFTs with one tap.
             </p>
           </Box>
         </Box>
@@ -83,21 +79,21 @@ const HowItWorks = () => {
         <Box className="card_step">
           <TransformIcon />
           <Box className="content">
-            <h3 className="title">Instant Digital Collectibles</h3>
+            <h3 className="title">Trade with Ease</h3>
             <p className="paragraph">
-              With one tap, your content becomes a verifiable NFT on Etherlink.
-              No complicated setup needed.
+              Buy and resell NFTs directly in the app while growing your
+              collection and supporting the marketplace.
             </p>
           </Box>
         </Box>
 
         <Box className="card_step">
-          <PriceCheckIcon />
+          <StarsIcon />
           <Box className="content">
-            <h3 className="title">Grow Your Value</h3>
+            <h3 className="title">Earn XP and Rewards</h3>
             <p className="paragraph">
-              Earn royalties on every sale while your XP grows with community
-              engagement. Watch your creations appreciate.
+              Minting, buying, and reselling give you XP. Once you reach 100 XP,
+              you can claim INSTA tokens.
             </p>
           </Box>
         </Box>
