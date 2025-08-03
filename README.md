@@ -107,7 +107,7 @@ git clone https://github.com/4SAMU/InstaMint.git
 cd InstaMint
 ```
 
-2. Install Frontend & Backend Dependencies (they are in the same Next.js project):
+2.Install Frontend & Backend Dependencies (they are in the same Next.js project):
 
 ```Shell
 cd frontend
@@ -133,14 +133,14 @@ NEXT_PUBLIC_GATEWAY_URL="your_pinata_gateway_url"
 
 ```
 
-Running the Application
+4.Running the Application
 Start the Next.js Development Server (this runs both frontend and backend API routes):
 
 ```Shell
 npm run dev # or yarn dev
 ```
 
-4. Install smart-contract Dependencies
+5.Install smart-contract Dependencies
    Navigate to your smart-contracts directory
 
 ```Shell
@@ -148,14 +148,14 @@ cd smart-contract
 npm install # or yarn install
 ```
 
-Set up your .env file with your testnet private key and verification private api.
+6.Set up your .env file with your testnet private key and verification private api.
 
 ```Shell
 VERIFICATION_API_KEY=""
 ETHERLINK_PRIVATE_KEY=""
 ```
 
-Deploy contract
+7.Deploy contract
 
 ```Shell
 npm run deployInstaMintNft # or yarn deployInstaMintNft # for nft
