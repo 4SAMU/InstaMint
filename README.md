@@ -37,7 +37,7 @@ InstaMint leverages a robust combination of decentralized and centralized techno
 
 -- Smart Contracts: Solidity (ERC721URIStorage for NFTs, ERC20 for INSTA token)
 
--- Utilizes OpenZeppelin Contracts for security and best practices.
+- Utilizes OpenZeppelin Contracts for security and best practices.
 
 -- Decentralized Storage: IPFS (via Pinata for reliable pinning)
 
