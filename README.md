@@ -1,190 +1,165 @@
 # InstaMint
 
-**Own the Moment. Mint Instantly. Earn Forever.**
+## Overview
 
-InstaMint lets you transform everyday images into valuable digital assets — minted instantly on **Etherlink**. Whether it’s a candid snap, travel highlight, or viral memory — mint it with a tap, grow your fanbase, and earn royalties every time it’s traded.
+`InstaMint` is an innovative decentralized NFT marketplace designed to transform everyday images into valuable digital assets on the blockchain. Built on the Tezos ecosystem via Etherlink, InstaMint offers a seamless and rewarding experience for minting, buying, selling, and collecting unique digital collectibles. Beyond core marketplace functionalities, InstaMint features an Experience Point (XP) system that rewards active participation, allowing users to earn INSTA tokens, which are pegged 1:1 to XTZ.
 
----
+`Our mission is to make digital ownership accessible and engaging for everyone, fostering a vibrant community around unique visual content.`
 
-## ✨ What is InstaMint?
+✨ Key Features
+-- Effortless NFT Minting: Transform your photos into unique NFTs with a simple, intuitive process, by providing a title, description, and price.
 
-A decentralized NFT-powered platform where:
+-- Decentralized Marketplace: Buy, sell, and browse a diverse collection of digital art securely on the Etherlink blockchain.
 
-- Users **share content** like on social media
-- Content becomes **collectible NFTs** on Etherlink instantly
-- Creators **earn royalties** and **XP** through engagement
-- Collectors discover, collect, and trade **verifiable digital moments**
+-- XP & Reward System: Earn Experience Points for various actions:
 
----
+- Mint NFT: 15 XP
 
-## 🚀 Key Features
+- Buy NFT: 10 XP
 
-- 🖼️ **Post and Mint Instantly**  
-  Upload photos or memories and mint them on-chain with one tap. No crypto expertise required.
+- Resell NFT: 5 XP
 
-- 💸 **Earn XP + Royalties**  
-  Gain XP for every reaction. Earn XTZ each time your content is sold or resold.
+- Claiming XP rewards is coming soon! Users will need at least 100 XP to claim INSTA tokens.
 
-- 🌍 **On Etherlink**  
-  Low fees, instant finality, and environmentally-friendly blockchain powered by Tezos.
+-- `IPFS` Integration: All NFT media and metadata are securely and immutably stored on IPFS via `Pinata`.
 
-- 📈 **Engagement-Driven Growth**  
-  The more people engage, the more valuable your moments become.
+-- `Wallet Compatibility`: Seamlessly connect your preferred Etherlink-compatible wallets, including Brave Wallet, MetaMask, Rainbow, Coinbase Wallet, and WalletConnect.
 
-- 🔥 **Trending Moments**  
-  Explore and collect trending digital memories from top creators.
+-- User-Friendly Interface: A modern and responsive web application built with Next.js ensures a smooth user experience.
 
----
+-- Secure Authentication: Login and registration available via email and password, with an option to connect wallet.
 
-## 🧱 Powered by Smart Contracts
+### Technical Stack
 
-The heart of InstaMint is a Solidity smart contract built with OpenZeppelin and deployed on **Etherlink**.
+InstaMint leverages a robust combination of decentralized and centralized technologies to deliver a powerful and user-friendly experience.
 
-### 📄 Contract Summary
+-- Blockchain Network: Tezos (via Etherlink Testnet/Mainnet)
 
-- **Name:** `INSTAMINT NFTS`
-- **Symbol:** `INSTA`
-- **Standard:** ERC-721
-- **Network:** Etherlink Testnet
-- **Listing Fee:** Default is `0.0001 XTZ` (updatable by owner)
+-- Smart Contracts: Solidity (ERC721URIStorage for NFTs, ERC20 for INSTA token)
 
-### 🔐 Core Capabilities
+-- Utilizes OpenZeppelin Contracts for security and best practices.
 
-- Mint NFTs instantly with metadata URI
-- List NFTs for sale on-chain
-- Buy and resell NFTs securely
-- Track XP and sales across users (future integration)
+-- Decentralized Storage: IPFS (via Pinata for reliable pinning)
 
----
+-- Frontend: Next.js (React Framework)
 
-## 🛠 Developer Setup
+-- Backend: Next.js (API Routes)
 
-```bash
-# Clone the project
-git clone <your-repo-url>
-cd instamint
+-- Database: MongoDB
 
-# Initialize Hardhat project
-npm init -y
-npm install --save-dev hardhat
-npx hardhat
+### Architecture
 
-# Install dependencies
-npm install @openzeppelin/contracts dotenv
+InstaMint employs a hybrid architecture:
+
+-- Frontend (Next.js): Provides the user interface, handles wallet interactions, and facilitates direct communication with IPFS for content uploads.
+
+-- Backend (Next.js API Routes): Manages user accounts, tracks XP, stores an indexed copy of NFT metadata in MongoDB for quick searches, and will eventually manage the INSTA token distribution.
+
+-- Smart Contracts (on Etherlink): Handle the core logic for NFT creation, marketplace listings, sales, and the INSTA token mechanics.
+
+-- IPFS (via Pinata): Stores the immutable NFT image files and their JSON metadata.
+
+-- MongoDB: The NoSQL database used by the Next.js backend for persistent storage of user data, XP, and cached NFT metadata.
+
+```shell
+  graph TD
+    A[User] -->|Browser/Client| B[InstaMint Frontend (Next.js)]
+    B -- API Calls --> C[InstaMint Backend (Next.js API Routes)]
+    B -- Wallet Interaction --> D[Blockchain Network (Etherlink)]
+    C -- (Owner Tx) --> D
+
+    D -- Reads/Writes --> E[InstaMint NFT Contract]
+    D -- Reads/Writes --> F[InstaToken Contract]
+
+    C -- Reads/Writes --> G[MongoDB Database]
+    B -- Uploads to --> H[IPFS (via Pinata)]
+    H -- Returns URI --> B
+    B -->|Passes URI| C
+    C -->|Passes URI| D
+    E -->|tokenURI| H
 ```
 
-### Deployment
+### Getting Started
 
-Create `scripts/deploy.js`:
+To get a local copy up and running, follow these simple steps.
+Prerequisites
 
-```js
-const { ethers } = require("hardhat");
+- Node.js (v18 or higher recommended)
 
-async function main() {
-  const [deployer] = await ethers.getSigners();
-  const InstaMint = await ethers.getContractFactory("InstaMint");
-  const contract = await InstaMint.deploy();
-  await contract.waitForDeployment();
+- Yarn or npm
 
-  console.log("Contract deployed to:", contract.target);
-}
+- Git
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+- MongoDB instance (local or cloud-hosted like MongoDB Atlas)
+
+- An Etherlink-compatible wallet (e.g., MetaMask configured for Etherlink Testnet)
+
+- Testnet XTZ from an Etherlink Faucet (for transaction fees)
+
+- Pinata API Key + jwt and gateway_url (for IPFS uploads)
+
+### Installation
+
+1.Clone the repository:
+
+```Shell
+git clone https://github.com/4SAMU/InstaMint.git
+cd InstaMint
 ```
 
-Update `hardhat.config.js`:
+2. Install Frontend & Backend Dependencies (they are in the same Next.js project):
 
-```js
-require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
-
-module.exports = {
-  solidity: "0.8.17",
-  networks: {
-    etherlink_testnet: {
-      url: "https://node.ghostnet.etherlink.com",
-      accounts: [process.env.ETHERLINK_PRIVATE_KEY],
-    },
-  },
-};
+```Shell
+cd frontend
+npm install # or yarn install
 ```
 
-Create a `.env` file:
+3.Set-up the `.env`
 
-```env
-ETHERLINK_PRIVATE_KEY="your_ETHERLINK_PRIVATE_KEY"
+```shell
+# Authentication
+JWT_SECRET="your_jwt_secret_here"
+
+# Database
+MONGODB_URI="your_mongodb_connection_string_here"
+
+# Pinata Configuration
+PINATA_JWT="your_pinata_jwt_here"
+PINATA_API_KEY="your_pinata_api_key_here"
+PINATA_API_SECRET="your_pinata_api_secret_here"
+
+# Public Gateway
+NEXT_PUBLIC_GATEWAY_URL="your_pinata_gateway_url"
+
 ```
 
-Then run:
+Running the Application
+Start the Next.js Development Server (this runs both frontend and backend API routes):
 
-```bash
-npx hardhat run scripts/deploy.js --network etherlink_testnet
+```Shell
+npm run dev # or yarn dev
 ```
 
----
+4. Install smart-contract Dependencies
+   Navigate to your smart-contracts directory
 
-## 🧠 Smart Contract Functions
-
-### ➕ Mint & List NFT
-
-```solidity
-createToken(string memory tokenURI, uint256 price)
+```Shell
+cd smart-contract
+npm install # or yarn install
 ```
 
-### 💰 Buy NFT
+Set up your .env file with your testnet private key and verification private api.
 
-```solidity
-createMarketSale(uint256 tokenId)
+```Shell
+VERIFICATION_API_KEY=""
+ETHERLINK_PRIVATE_KEY=""
 ```
 
-### ♻️ Resell NFT
+Deploy contract
 
-```solidity
-resellToken(uint256 tokenId, uint256 price)
+```Shell
+npm run deployInstaMintNft # or yarn deployInstaMintNft # for nft
+npm run deployInstaToken # or yarn deployInstaToken # for ERC-20 token (INSTA)
 ```
 
-### 📥 Fetch Functions
-
-```solidity
-fetchMarketItems()
-fetchMyNFTs()
-fetchItemsListed()
-```
-
-### 🔧 Admin
-
-```solidity
-updateListingPrice(uint256 newPrice)
-getListingPrice()
-```
-
----
-
-## 📸 Sample Content Flow
-
-### Featured Collectible
-
-> **Remy Traveler**  
-> Visited Bahamas – _Enjoyed the sun kisses, wanna go back there fr_  
-> 🖼️ NFT ID: 5000  
-> ❤️ Reactions: 12k  
-> 💰 Value: 12 XTZ
-
----
-
-## 📢 Community & Support
-
-Explore, mint, and connect with others through our growing community:
-
-## 📄 License
-
-MIT License
-
----
-
-© 2025 InstaMint. All rights reserved.
-
-**InstaMint** – Own your moments. Mint them. Earn forever.
+After successful deployment, update frontend `frontend/src/config` with the respective items, abis and contract addresses from the `smart-contract/deployed`
