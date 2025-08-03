@@ -32,7 +32,7 @@ async function main() {
   };
 
   fs.writeFileSync(
-    path.join(deployedDir, "config.json"),
+    path.join(deployedDir, "nftConfig.json"),
     JSON.stringify(config, null, 2)
   );
 
@@ -40,7 +40,7 @@ async function main() {
   const artifact = await hre.artifacts.readArtifact("InstaMint");
 
   fs.writeFileSync(
-    path.join(deployedDir, "instamint.json"),
+    path.join(deployedDir, "instaMintNft.json"),
     JSON.stringify(artifact.abi, null, 2)
   );
 

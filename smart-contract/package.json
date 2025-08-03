@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "deploy": "npx hardhat run scripts/deploy.js --network etherlinkTestnet",
-    "verify": "npx hardhat verify <your deployed contract address> --network etherlinkTestnet",
+    "deployInstaMintNft": "npx hardhat run scripts/deployInstaMintNFT.js --network etherlinkTestnet",
+    "deployInstaToken": "npx hardhat run scripts/deployInstaToken.js --network etherlinkTestnet",
+    "verifyInstaMintNft": "npx hardhat verify <your deployed contract address> --network etherlinkTestnet",
     "test": "npx hardhat test"
   },
   "keywords": [],
