@@ -6,7 +6,7 @@
 
 `Our mission is to make digital ownership accessible and engaging for everyone, fostering a vibrant community around unique visual content.`
 
-✨ Key Features
+## Key Features
 -- Effortless NFT Minting: Transform your photos into unique NFTs with a simple, intuitive process, by providing a title, description, and price.
 
 -- Decentralized Marketplace: Buy, sell, and browse a diverse collection of digital art securely on the Etherlink blockchain.
@@ -29,7 +29,7 @@
 
 -- Secure Authentication: Login and registration available via email and password, with an option to connect wallet.
 
-### Technical Stack
+## Technical Stack
 
 InstaMint leverages a robust combination of decentralized and centralized technologies to deliver a powerful and user-friendly experience.
 
@@ -47,7 +47,7 @@ InstaMint leverages a robust combination of decentralized and centralized techno
 
 -- Database: MongoDB
 
-### Architecture
+## Architecture
 
 InstaMint employs a hybrid architecture:
 
