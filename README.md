@@ -7,6 +7,7 @@
 `Our mission is to make digital ownership accessible and engaging for everyone, fostering a vibrant community around unique visual content.`
 
 ## Key Features
+
 -- Effortless NFT Minting: Transform your photos into unique NFTs with a simple, intuitive process, by providing a title, description, and price.
 
 -- Decentralized Marketplace: Buy, sell, and browse a diverse collection of digital art securely on the Etherlink blockchain.
@@ -141,7 +142,7 @@ npm run dev # or yarn dev
 ```
 
 5.Install smart-contract Dependencies
-   Navigate to your smart-contracts directory
+Navigate to your smart-contracts directory
 
 ```Shell
 cd smart-contract
@@ -163,3 +164,9 @@ npm run deployInstaToken # or yarn deployInstaToken # for ERC-20 token (INSTA)
 ```
 
 After successful deployment, update frontend `frontend/src/config` with the respective items, abi's and contract addresses from the `smart-contract/deployed`
+
+### Preview and live-link
+
+Visit InstaMint here: [https://instamint-dusky.vercel.app](https://instamint-dusky.vercel.app)
+
+![Screenshot](https://api.microlink.io?url=https://instamint-dusky.vercel.app//&screenshot=true&meta=false&embed=screenshot.url)
