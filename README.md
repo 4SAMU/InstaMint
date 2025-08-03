@@ -162,4 +162,4 @@ npm run deployInstaMintNft # or yarn deployInstaMintNft # for nft
 npm run deployInstaToken # or yarn deployInstaToken # for ERC-20 token (INSTA)
 ```
 
-After successful deployment, update frontend `frontend/src/config` with the respective items, abis and contract addresses from the `smart-contract/deployed`
+After successful deployment, update frontend `frontend/src/config` with the respective items, abi's and contract addresses from the `smart-contract/deployed`
