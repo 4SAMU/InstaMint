@@ -11,9 +11,13 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import EastIcon from "@mui/icons-material/East";
 import MintModal from "../modals/MintModal";
 import { useRouter } from "next/router";
-import { useAccount } from "wagmi";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import toast from "react-hot-toast";
+import { lightTheme, useActiveAccount, useConnectModal } from "thirdweb/react";
+import {
+  RecommendedWallets,
+  thirdWebClient,
+  Wallets,
+} from "@/config/thirdWebConfig";
 
 const sectionStyles = {
   alignItems: "center",
@@ -114,15 +118,35 @@ const sectionStyles = {
 const HeroSection = () => {
   const router = useRouter();
   const [isMintOpen, setMintOpen] = useState(false);
-  const { isConnected } = useAccount();
-  const { openConnectModal } = useConnectModal();
+  const account = useActiveAccount();
+  const { connect } = useConnectModal();
   const [pendingRedirect, setPendingRedirect] = useState(false);
   const [connectTimeout, setConnectTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
 
+  const openConnectModal = async () => {
+    await connect({
+      client: thirdWebClient,
+      size: "wide",
+      theme: lightTheme({
+        colors: {
+          primaryButtonBg: "#0bda49ff",
+          primaryButtonText: "#fff",
+          skeletonBg: "#0bda49ff",
+          accentButtonBg: "#0bda49ff",
+          accentText: "#0bda49ff",
+        },
+      }),
+      showAllWallets: false,
+      wallets: Wallets,
+      recommendedWallets: RecommendedWallets,
+      setActive: true,
+    });
+  };
+
   const handleExploreCollections = () => {
-    if (!isConnected) {
+    if (!account) {
       toast.error("Please connect wallet to view collectibles");
       setPendingRedirect(true);
 
@@ -150,12 +174,12 @@ const HeroSection = () => {
 
   // auto redirect when connected
   useEffect(() => {
-    if (pendingRedirect && isConnected) {
+    if (pendingRedirect && account) {
       router.push("/collections");
       setPendingRedirect(false);
       if (connectTimeout) clearTimeout(connectTimeout);
     }
-  }, [pendingRedirect, isConnected, router, connectTimeout]);
+  }, [pendingRedirect, account, router, connectTimeout]);
 
   return (
     <>

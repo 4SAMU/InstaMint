@@ -12,19 +12,20 @@ import { useRouter } from "next/router";
 import MintModal from "@/components/modals/MintModal";
 import ResellModal from "@/components/modals/ResellModal"; // 👈 import modal
 import Masonry from "react-masonry-css";
-import { useAccount } from "wagmi";
 import toast from "react-hot-toast";
 import { ethers } from "ethers";
 import { InstaMintNftContractAddress } from "@/config/contract-address";
 import { InstaMintNFTABI } from "@/config/instamint-abi";
 import { useAuth } from "@/context/AuthContext";
 import { useXp } from "@/context/XpContext";
+import { useActiveAccount } from "thirdweb/react";
 
 const MyCollections = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { addXp } = useXp();
-  const { address: currentAddress } = useAccount();
+  const account = useActiveAccount();
+  const currentAddress = account ? account.address : undefined;
   const { myNFTs, fetchMarketNFTs, fetchMyNFTs } = useInstaMint();
 
   const [isMintOpen, setMintOpen] = useState(false);

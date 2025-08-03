@@ -29,11 +29,6 @@ a {
   }
 }
 
-/*reduce rainbow buttons fontweight*/
-button[data-testid="rk-connect-button"] {
-  font-weight: 400 !important;
-}
-
 /* In a global CSS file (e.g., styles/globals.css or similar) */
 
 .my-masonry-grid {
@@ -53,4 +48,9 @@ button[data-testid="rk-connect-button"] {
 .my-masonry-grid_column > div {
   /* Target the direct children of the column (your Box components) */
   background: transparent; /* Ensure no background from the column itself */
+}
+
+.tw-connected-wallet {
+  border-radius: 30px !important;
+  height: 45px !important;
 }

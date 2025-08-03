@@ -13,9 +13,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
-    "@rainbow-me/rainbowkit": "^2.2.8",
     "@reactour/tour": "^3.8.0",
-    "@tanstack/react-query": "^5.83.0",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "busboy": "^1.6.0",
@@ -30,9 +28,8 @@
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.5.2",
     "react-masonry-css": "^1.0.16",
-    "uuid": "^11.1.0",
-    "viem": "^2.33.1",
-    "wagmi": "^2.16.0"
+    "thirdweb": "^5.105.26",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

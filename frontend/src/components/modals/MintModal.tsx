@@ -14,8 +14,6 @@ import {
   StyledTextField,
   UploadPreview,
 } from "@/styles/common-styles";
-import { useAccount } from "wagmi";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { ethers } from "ethers";
 import { InstaMintNFTABI } from "@/config/instamint-abi";
 import toast from "react-hot-toast";
@@ -23,6 +21,8 @@ import { InstaMintNftContractAddress } from "@/config/contract-address";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "./AuthModal";
 import { useXp } from "@/context/XpContext";
+import { useActiveAccount } from "thirdweb/react";
+import WalletConnectModal from "./WalletConnect";
 
 interface MintModalProps {
   onClose: () => void;
@@ -30,9 +30,8 @@ interface MintModalProps {
 }
 
 const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
-  const { isConnected } = useAccount();
+  const account = useActiveAccount();
   const { isLoggedIn } = useAuth();
-  const { openConnectModal } = useConnectModal();
   const { user } = useAuth();
   const { addXp } = useXp();
   const [isAuthOpen, setAuthOpen] = useState(false);
@@ -309,8 +308,8 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
         <PrimaryButton onClick={() => setAuthOpen(true)}>
           Login / Signup
         </PrimaryButton>
-      ) : !isConnected ? (
-        <PrimaryButton onClick={openConnectModal}>Connect Wallet</PrimaryButton>
+      ) : !account ? (
+        <WalletConnectModal blackButtonBg fontWeightBtn="400" />
       ) : (
         <Box sx={{ display: "flex", gap: "10px", flexDirection: "column" }}>
           <SecondaryButton onClick={handleSubmit} disabled={isUploading}>

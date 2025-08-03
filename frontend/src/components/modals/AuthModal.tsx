@@ -10,12 +10,11 @@ import {
   InnerModal,
   ModalWrapper,
   PrimaryButton,
-  SecondaryButton,
   StyledTextField,
 } from "@/styles/common-styles";
 import { useAuth } from "@/context/AuthContext";
-import { useAccount } from "wagmi";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useActiveAccount } from "thirdweb/react";
+import WalletConnectModal from "./WalletConnect";
 
 interface AuthModalProps {
   open: boolean;
@@ -28,8 +27,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   isMintModalOpen,
 }) => {
-  const { address, isConnected } = useAccount();
-  const { openConnectModal } = useConnectModal();
+  const account = useActiveAccount();
+  const currentAddress = account ? account.address : undefined;
   const { login, register, loading: authLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -63,7 +62,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
           email: formData.email,
           password: formData.password,
           name: formData.name,
-          walletAddress: address || "",
+          // walletAddress: address || "",
         });
 
         setSuccess("Registration successful! You are now logged in.");
@@ -161,14 +160,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
               required
             />
 
-            {!isConnected ? (
-              <SecondaryButton
-                sx={{ mt: 2, fontWeight: 600 }}
-                onClick={openConnectModal}
-                disabled={authLoading || localLoading}
-              >
-                Connect Wallet
-              </SecondaryButton>
+            {!account ? (
+              <WalletConnectModal />
             ) : (
               <Typography
                 sx={{
@@ -179,7 +172,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   textAlign: "center",
                 }}
               >
-                Wallet: {address?.slice(0, 6)}...{address?.slice(-4)}
+                Wallet: {currentAddress?.slice(0, 6)}...
+                {currentAddress?.slice(-4)}
               </Typography>
             )}
 

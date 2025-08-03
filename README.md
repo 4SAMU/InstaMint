@@ -14,11 +14,11 @@ Visit InstaMint here: [https://instamint-dusky.vercel.app](https://instamint-dus
 
 ## Key Features
 
--- Effortless NFT Minting: Transform your photos into unique NFTs with a simple, intuitive process, by providing a title, description, and price.
+1.Effortless NFT Minting: Transform your photos into unique NFTs with a simple, intuitive process, by providing a title, description, and price.
 
--- Decentralized Marketplace: Buy, sell, and browse a diverse collection of digital art securely on the Etherlink blockchain.
+2.Decentralized Marketplace: Buy, sell, and browse a diverse collection of digital art securely on the Etherlink blockchain.
 
--- XP & Reward System: Earn Experience Points for various actions:
+3.XP & Reward System: Earn Experience Points for various actions:
 
 - Mint NFT: 15 XP
 
@@ -28,45 +28,45 @@ Visit InstaMint here: [https://instamint-dusky.vercel.app](https://instamint-dus
 
 - Claiming XP rewards is coming soon! Users will need at least 100 XP to claim INSTA tokens.
 
--- `IPFS` Integration: All NFT media and metadata are securely and immutably stored on IPFS via `Pinata`.
+4.`IPFS` Integration: All NFT media and metadata are securely and immutably stored on IPFS via `Pinata`.
 
--- `Wallet Compatibility`: Seamlessly connect your preferred Etherlink-compatible wallets, including Brave Wallet, MetaMask, Rainbow, Coinbase Wallet, and WalletConnect.
+5.`Wallet Compatibility`: Seamlessly connect your preferred Etherlink-compatible wallets with ease using `ThirdWeb tools`
 
--- User-Friendly Interface: A modern and responsive web application built with Next.js ensures a smooth user experience.
+6.User-Friendly Interface: A modern and responsive web application built with Next.js ensures a smooth user experience.
 
--- Secure Authentication: Login and registration available via email and password, with an option to connect wallet.
+7.Secure Authentication: Login and registration available via email and password, with an option to connect wallet.
 
 ## Technical Stack
 
 InstaMint leverages a robust combination of decentralized and centralized technologies to deliver a powerful and user-friendly experience.
 
--- Blockchain Network: Tezos (via Etherlink Testnet/Mainnet)
+1.`Blockchain Network`: Tezos (via Etherlink Testnet/Mainnet)
 
--- Smart Contracts: Solidity (ERC721URIStorage for NFTs, ERC20 for INSTA token)
+2.`Smart Contracts`: Solidity (ERC721URIStorage for NFTs, ERC20 for INSTA token)
 
 - Utilizes OpenZeppelin Contracts for security and best practices.
 
--- Decentralized Storage: IPFS (via Pinata for reliable pinning)
+3.`Decentralized Storage`: IPFS (via Pinata for reliable pinning)
 
--- Frontend: Next.js (React Framework)
+4.`Frontend`: Next.js (React Framework)
 
--- Backend: Next.js (API Routes)
+5.`Backend`: Next.js (API Routes)
 
--- Database: MongoDB
+6.`Database`: MongoDB
 
 ## Architecture
 
 InstaMint employs a hybrid architecture:
 
--- Frontend (Next.js): Provides the user interface, handles wallet interactions, and facilitates direct communication with IPFS for content uploads.
+— Frontend (Next.js): Provides the user interface, handles wallet interactions, and facilitates direct communication with IPFS for content uploads.
 
--- Backend (Next.js API Routes): Manages user accounts, tracks XP, stores an indexed copy of NFT metadata in MongoDB for quick searches, and will eventually manage the INSTA token distribution.
+— Backend (Next.js API Routes): Manages user accounts, tracks XP, stores an indexed copy of NFT metadata in MongoDB for quick searches, and will eventually manage the INSTA token distribution.
 
--- Smart Contracts (on Etherlink): Handle the core logic for NFT creation, marketplace listings, sales, and the INSTA token mechanics.
+— Smart Contracts (on Etherlink): Handle the core logic for NFT creation, marketplace listings, sales, and the INSTA token mechanics.
 
--- IPFS (via Pinata): Stores the immutable NFT image files and their JSON metadata.
+— IPFS (via Pinata): Stores the immutable NFT image files and their JSON metadata.
 
--- MongoDB: The NoSQL database used by the Next.js backend for persistent storage of user data, XP, and cached NFT metadata.
+— MongoDB: The NoSQL database used by the Next.js backend for persistent storage of user data, XP, and cached NFT metadata.
 
 ```shell
   graph TD
@@ -137,6 +137,10 @@ PINATA_API_SECRET="your_pinata_api_secret_here"
 
 # Public Gateway
 NEXT_PUBLIC_GATEWAY_URL="your_pinata_gateway_url"
+
+# ThirdWeb Configuration ### Follow this link to create one: https://thirdweb.com/team
+NEXT_PUBLIC_THIRDWEB_CLIENT_ID="your_third_web_client_id"
+THIRD_WEB_SECRET_KEY="your_third_web_secret_key"
 
 ```
 

@@ -18,16 +18,16 @@ import AuthModal from "../modals/AuthModal";
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/AuthContext";
 import { useAppTour } from "@/context/TourContext";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useXp } from "@/context/XpContext";
+import { useActiveAccount } from "thirdweb/react";
+import WalletConnectModal from "../modals/WalletConnect";
 
 const Navbar = () => {
   const router = useRouter();
   const { xp } = useXp();
+  const account = useActiveAccount();
   const { user, isLoggedIn, logout } = useAuth();
-  const { isConnected } = useAccount();
   const { startTour, completed } = useAppTour();
 
   const [isMintOpen, setMintOpen] = useState(false);
@@ -79,38 +79,32 @@ const Navbar = () => {
             My Collections
           </TextButton>
 
-          {router.pathname === "/" &&
-            !completed &&
-            !isConnected &&
-            !isLoggedIn && (
-              <OutlinedButton
-                sx={{
-                  padding: "2px 25px",
-                  ":hover": {
-                    background: "#36270390",
-                    color: "white",
-                    border: "1px solid white",
-                  },
-                }}
-                onClick={() => startTour()}
-              >
-                Get Started
-              </OutlinedButton>
-            )}
-
-          {isLoggedIn ? (
-            <Box className="login-signup">
-              <ConnectButton />
-            </Box>
-          ) : (
-            <PrimaryButton
-              className="login-signup"
-              onClick={handlePrimaryClick}
+          {router.pathname === "/" && !completed && !account && !isLoggedIn && (
+            <OutlinedButton
+              sx={{
+                padding: "2px 25px",
+                ":hover": {
+                  background: "#36270390",
+                  color: "white",
+                  border: "1px solid white",
+                },
+              }}
+              onClick={() => startTour()}
             >
-              Login / Sign Up
-            </PrimaryButton>
+              Get Started
+            </OutlinedButton>
           )}
         </Box>
+
+        {isLoggedIn ? (
+          <Box className="login-signup">
+            <WalletConnectModal blackButtonBg={true} />
+          </Box>
+        ) : (
+          <PrimaryButton className="login-signup" onClick={handlePrimaryClick}>
+            Login / Sign Up
+          </PrimaryButton>
+        )}
 
         {/* XP Counter + Account (whole group opens popover) */}
         <XpContainer onClick={handleOpenPopover} sx={{ cursor: "pointer" }}>

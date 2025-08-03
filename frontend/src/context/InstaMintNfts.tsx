@@ -9,7 +9,7 @@ import React, {
 import { ethers } from "ethers";
 import { InstaMintNftContractAddress } from "@/config/contract-address";
 import { InstaMintNFTABI } from "@/config/instamint-abi";
-import { useAccount } from "wagmi";
+import { useActiveAccount } from "thirdweb/react";
 
 export interface InstaMintNFTItem {
   tokenId: number;
@@ -47,7 +47,7 @@ export const useInstaMint = () => {
 export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { isConnected } = useAccount();
+  const account = useActiveAccount();
   const [marketNFTs, setMarketNFTs] = useState<InstaMintNFTItem[]>([]);
   const [myNFTs, setMyNFTs] = useState<InstaMintNFTItem[]>([]);
 
@@ -119,7 +119,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
   // ---- Fetch Market NFTs ----
   const fetchMarketNFTs = async () => {
     try {
-      if (!isConnected) return;
+      if (!account) return;
       const contract = await getContract();
       if (!contract) return;
 
@@ -134,7 +134,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
   // ---- Fetch My NFTs ----
   const fetchMyNFTs = async () => {
     try {
-      if (!isConnected) return;
+      if (!account) return;
       const contract = await getContract();
       if (!contract) return;
 
@@ -156,7 +156,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
       await fetchMyNFTs();
     };
 
-    if (isConnected) {
+    if (account) {
       loadAll();
       const interval = setInterval(loadAll, 15000);
       return () => {
@@ -165,7 +165,7 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected]);
+  }, [account]);
 
   return (
     <InstaMintContext.Provider

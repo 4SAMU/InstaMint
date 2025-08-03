@@ -8,9 +8,9 @@ import { InstaMintNftContractAddress } from "@/config/contract-address";
 import { InstaMintNFTABI } from "@/config/instamint-abi";
 import toast from "react-hot-toast";
 import { useInstaMint } from "@/context/InstaMintNfts";
-import { useAccount } from "wagmi";
 import { useAuth } from "@/context/AuthContext";
 import { useXp } from "@/context/XpContext";
+import { useActiveAccount } from "thirdweb/react";
 
 interface RightSideGridProps {
   nfts: any[];
@@ -27,7 +27,8 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
 }) => {
   const { user } = useAuth();
   const { addXp } = useXp();
-  const { address: currentAddress } = useAccount();
+  const account = useActiveAccount();
+  const currentAddress = account ? account.address : undefined;
   const { fetchMarketNFTs, fetchMyNFTs } = useInstaMint();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
