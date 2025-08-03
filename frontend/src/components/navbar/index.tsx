@@ -48,7 +48,7 @@ const Navbar = () => {
   };
 
   const open = Boolean(anchorEl);
-  const eligible = xp >= 50;
+  const eligible = xp >= 100;
 
   return (
     <>

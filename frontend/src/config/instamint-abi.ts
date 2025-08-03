@@ -1,4 +1,5 @@
-export const InstaMintABI = [
+//InstaMintNftABi
+export const InstaMintNFTABI = [
   {
     inputs: [],
     stateMutability: "nonpayable",
@@ -605,3 +606,6 @@ export const InstaMintABI = [
     type: "function",
   },
 ];
+
+//INSTA TOKEN coming soon
+export const InstaTokenABI = [];

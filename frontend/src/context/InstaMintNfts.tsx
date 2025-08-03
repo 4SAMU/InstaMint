@@ -7,8 +7,8 @@ import React, {
   ReactNode,
 } from "react";
 import { ethers } from "ethers";
-import { ContractAddress } from "@/config/contract-address";
-import { InstaMintABI } from "@/config/instamint-abi";
+import { InstaMintNftContractAddress } from "@/config/contract-address";
+import { InstaMintNFTABI } from "@/config/instamint-abi";
 import { useAccount } from "wagmi";
 
 export interface InstaMintNFTItem {
@@ -60,11 +60,19 @@ export const InstaMintProvider: React.FC<{ children: ReactNode }> = ({
       const browserProvider = new ethers.BrowserProvider(window.ethereum);
 
       const signer = await browserProvider.getSigner();
-      return new ethers.Contract(ContractAddress, InstaMintABI, signer);
+      return new ethers.Contract(
+        InstaMintNftContractAddress,
+        InstaMintNFTABI,
+        signer
+      );
     }
 
     // fallback read-only
-    return new ethers.Contract(ContractAddress, InstaMintABI, fallbackProvider);
+    return new ethers.Contract(
+      InstaMintNftContractAddress,
+      InstaMintNFTABI,
+      fallbackProvider
+    );
   };
 
   // ---- Helper to enrich NFT metadata ----

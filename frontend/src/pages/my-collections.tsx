@@ -15,8 +15,8 @@ import Masonry from "react-masonry-css";
 import { useAccount } from "wagmi";
 import toast from "react-hot-toast";
 import { ethers } from "ethers";
-import { ContractAddress } from "@/config/contract-address";
-import { InstaMintABI } from "@/config/instamint-abi";
+import { InstaMintNftContractAddress } from "@/config/contract-address";
+import { InstaMintNFTABI } from "@/config/instamint-abi";
 import { useAuth } from "@/context/AuthContext";
 import { useXp } from "@/context/XpContext";
 
@@ -62,8 +62,8 @@ const MyCollections = () => {
     try {
       const signer = await getSigner();
       const contract = new ethers.Contract(
-        ContractAddress,
-        InstaMintABI,
+        InstaMintNftContractAddress,
+        InstaMintNFTABI,
         signer
       );
 

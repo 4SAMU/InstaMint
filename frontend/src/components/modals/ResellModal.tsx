@@ -44,7 +44,7 @@ const ResellModal: React.FC<ResellModalProps> = ({
       <ClickAwayListener onClickAway={onClose}>
         <InnerModal>
           <Typography variant="h5" fontWeight={600} sx={{ mb: 2 }}>
-            Resell Memory(NFT)
+            Resell NFT
           </Typography>
 
           {/* NFT Image */}

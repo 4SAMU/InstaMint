@@ -11,9 +11,9 @@ async function main() {
   const instaToken = await InstaToken.deploy();
 
   await instaToken.waitForDeployment();
-  const contractAddress = await instaToken.getAddress();
+  const InstaMintNftContractAddress = await instaToken.getAddress();
 
-  console.log("InstaToken deployed to:", contractAddress);
+  console.log("InstaToken deployed to:", InstaMintNftContractAddress);
 
   // ✅ Define deployed folder path
   const deployedDir = path.join(__dirname, "../deployed");
@@ -25,7 +25,7 @@ async function main() {
 
   // ✅ Write contract address to config.json
   const config = {
-    tokenAddress: contractAddress,
+    tokenAddress: InstaMintNftContractAddress,
   };
 
   fs.writeFileSync(

@@ -4,8 +4,8 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import Masonry from "react-masonry-css";
 import { SecondaryButton } from "@/styles/common-styles";
 import { ethers } from "ethers";
-import { ContractAddress } from "@/config/contract-address";
-import { InstaMintABI } from "@/config/instamint-abi";
+import { InstaMintNftContractAddress } from "@/config/contract-address";
+import { InstaMintNFTABI } from "@/config/instamint-abi";
 import toast from "react-hot-toast";
 import { useInstaMint } from "@/context/InstaMintNfts";
 import { useAccount } from "wagmi";
@@ -73,8 +73,8 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
     try {
       const signer = await getSigner();
       const contract = new ethers.Contract(
-        ContractAddress,
-        InstaMintABI,
+        InstaMintNftContractAddress,
+        InstaMintNFTABI,
         signer
       );
 

@@ -17,9 +17,9 @@ import {
 import { useAccount } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { ethers } from "ethers";
-import { InstaMintABI } from "@/config/instamint-abi";
+import { InstaMintNFTABI } from "@/config/instamint-abi";
 import toast from "react-hot-toast";
-import { ContractAddress } from "@/config/contract-address";
+import { InstaMintNftContractAddress } from "@/config/contract-address";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "./AuthModal";
 import { useXp } from "@/context/XpContext";
@@ -76,7 +76,11 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
 
   const mintNFT = async (tokenURI: string, price: string) => {
     const signer = await getSigner();
-    const contract = new ethers.Contract(ContractAddress, InstaMintABI, signer);
+    const contract = new ethers.Contract(
+      InstaMintNftContractAddress,
+      InstaMintNFTABI,
+      signer
+    );
 
     const listingFeeWei = await contract.getListingPrice();
     const priceInWei = ethers.parseEther(price);
@@ -125,8 +129,8 @@ const MintModal: React.FC<MintModalProps> = ({ onClose, isMintModalOpen }) => {
       const balance = await provider.getBalance(address);
 
       const contract = new ethers.Contract(
-        ContractAddress,
-        InstaMintABI,
+        InstaMintNftContractAddress,
+        InstaMintNFTABI,
         signer
       );
       const listingFeeWei = await contract.getListingPrice();

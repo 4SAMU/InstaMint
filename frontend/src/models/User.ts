@@ -8,7 +8,9 @@ export interface IUser extends Document {
   email: string;
   password: string;
   walletAddress?: string | null;
-  xp: number;
+  xp: number; // displayed XP
+  realXp: number; // backend-tracked XP
+  instaEarned: number; // total INSTA earned
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,7 +48,15 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     xp: {
       type: Number,
-      default: 0,
+      default: 0, // frontend displayed XP
+    },
+    realXp: {
+      type: Number,
+      default: 0, // backend audited XP
+    },
+    instaEarned: {
+      type: Number,
+      default: 0, // lifetime INSTA minted
     },
   },
   {

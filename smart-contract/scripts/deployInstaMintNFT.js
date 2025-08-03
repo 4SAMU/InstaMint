@@ -10,9 +10,9 @@ async function main() {
   const instaMint = await InstaMint.deploy();
 
   await instaMint.waitForDeployment();
-  const contractAddress = await instaMint.getAddress();
+  const InstaMintNftContractAddress = await instaMint.getAddress();
 
-  console.log("InstaMint deployed to:", contractAddress);
+  console.log("InstaMint deployed to:", InstaMintNftContractAddress);
   console.log(
     "Initial listing price:",
     (await instaMint.getListingPrice()).toString()
@@ -28,7 +28,7 @@ async function main() {
 
   // ✅ Write contract address to config.json
   const config = {
-    address: contractAddress,
+    address: InstaMintNftContractAddress,
   };
 
   fs.writeFileSync(

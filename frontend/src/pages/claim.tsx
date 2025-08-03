@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Typography,
   CircularProgress,
-  Alert,
   Table,
   TableBody,
   TableCell,
@@ -14,32 +12,11 @@ import {
   Paper,
 } from "@mui/material";
 import { useXp } from "@/context/XpContext";
-import { useAuth } from "@/context/AuthContext";
 import DefaultLayout from "@/components/layout";
 import { SecondaryButton, SectionWrapper } from "@/styles/common-styles";
 
 const ClaimPage: React.FC = () => {
-  const { xp, claimXp, loading } = useXp();
-  const { user } = useAuth();
-  const [message, setMessage] = useState<string | null>(null);
-  const [claiming, setClaiming] = useState(false);
-
-  const handleClaim = async () => {
-    if (!user) return;
-    setClaiming(true);
-    setMessage(null);
-    try {
-      const newXp = await claimXp(user._id || user.id, 100); // claim 100 XP
-      setMessage(`✅ Successfully claimed 100 XP! Remaining XP: ${newXp}`);
-    } catch (error: any) {
-      setMessage("❌ Failed to claim XP. Please try again.");
-      console.log(error);
-    } finally {
-      setClaiming(false);
-    }
-  };
-
-  const eligible = xp >= 100;
+  const { xp, loading } = useXp();
 
   return (
     <DefaultLayout>
@@ -83,48 +60,24 @@ const ClaimPage: React.FC = () => {
 
           <Typography
             variant="body2"
-            color={eligible ? "green" : "red"}
-            sx={{ mb: 2 }}
+            color="orange"
+            sx={{ mb: 2, fontStyle: "italic" }}
           >
-            Status:{" "}
-            {eligible
-              ? "✅ Eligible to claim rewards!"
-              : "❌ Not eligible yet (need at least 100 XP)"}
+            🚧 Claiming XP rewards is coming soon! Stay tuned.
           </Typography>
 
-          {/* <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
-            Each <strong>100 XP</strong> equals <strong>100 INSTA</strong>,
-            pegged <strong>1:1 with XTZ</strong>. <br />
-            Your balance: <strong>{xp} XP</strong> = <strong>{xp} INSTA</strong>{" "}
-            = <strong>{xp} XTZ</strong>.
-          </Typography> */}
-
-          {message && (
-            <Alert
-              severity={message.startsWith("✅") ? "success" : "error"}
-              sx={{ mb: 2 }}
-            >
-              {message}
-            </Alert>
-          )}
-
+          {/* Disabled Claim Button */}
           <SecondaryButton
-            onClick={handleClaim}
-            disabled={!eligible || claiming}
+            disabled
             sx={{
               mb: 5,
               width: "200px",
-              ":disabled": {
-                background: "gray !important",
-                color: "#fff",
-              },
+              background: "gray !important",
+              color: "#fff !important",
+              cursor: "not-allowed",
             }}
           >
-            {claiming ? (
-              <CircularProgress size={20} color="inherit" />
-            ) : (
-              "Claim 100 XP"
-            )}
+            Coming Soon
           </SecondaryButton>
 
           {/* XP Rewards Table */}
