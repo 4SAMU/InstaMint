@@ -129,6 +129,7 @@ const Navbar = () => {
           vertical: "top",
           horizontal: "right",
         }}
+        
         PaperProps={{
           sx: {
             p: 2,
