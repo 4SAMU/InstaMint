@@ -112,7 +112,7 @@ const MyCollections = () => {
           sx={{
             flexDirection: "row",
             position: "relative",
-            minHeight: "calc(100vh - 80px)",
+            height: "1000px",
             "&::before": {
               content: '""',
               position: "absolute",

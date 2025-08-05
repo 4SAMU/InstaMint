@@ -119,7 +119,7 @@ const RightSideGrid: React.FC<RightSideGridProps> = ({
         flex: 1,
         padding: 2,
         overflowY: "auto",
-        height: "calc(100vh - 80px)",
+        height: "1000px",
       }}
     >
       {!loading && nfts.length > 0 && (
