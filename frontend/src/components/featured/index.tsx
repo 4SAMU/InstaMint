@@ -19,8 +19,15 @@ const FeaturedNFTS = () => {
         const res = await fetch("/api/nft");
         const data = await res.json();
         if (data.success && data.nfts) {
-          // Show first 4 NFTs
-          setNfts(data.nfts.slice(0, 4));
+          // Sort NFTs by likes + comments (descending)
+          const sortedNFTs = data.nfts.sort((a: any, b: any) => {
+            const aScore = (a.likes?.length || 0) + (a.comments?.length || 0);
+            const bScore = (b.likes?.length || 0) + (b.comments?.length || 0);
+            return bScore - aScore;
+          });
+
+          // Show top 4
+          setNfts(sortedNFTs.slice(0, 4));
         }
       } catch (err) {
         console.error("Error fetching NFTs:", err);
