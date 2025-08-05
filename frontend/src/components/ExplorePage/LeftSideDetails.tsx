@@ -179,7 +179,7 @@ const LeftSideDetail: React.FC<LeftSideDetailProps> = ({
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        maxHeight: "calc(100vh - 100px)",
+        minHeight: "calc(100vh - 100px)",
         ...sx, // <-- Spread the incoming sx prop here. It will merge/override
       }}
     >
